@@ -10,6 +10,27 @@ const tickets = [
     { id: 1, title: 'First Item', status: 'Open', assignee: 'Jane Doe', dueDate: '2028-01-02' },
     { id: 2, title: 'Second Item', status: 'In Progress', assignee: 'John Smith', dueDate: '2028-01-03' },
     { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' }
 ];
 
 const performanceMetrics = [
@@ -23,21 +44,21 @@ function CustomerServiceDashboard() {
     const [modalIsOpen, setModalIsOpen] = useState(false);
 
     return (
-        <div className="flex flex-col w-screen p-4 text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800">
+        <div className="flex flex-col min-h-screen p-4 text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800">
             <Modal isOpen={modalIsOpen} className="rounded-xl bg-white dark:bg-gray-700 p-4 w-1/2 min-w-[300px] mx-auto mt-20 border-2 border-gray-300">
                 <TicketInfo closeTicket={() => setModalIsOpen(false)} />
             </Modal>
             <div className="my-20 flex text-center justify-around flex-row">
                 {performanceMetrics.map(metric => (
-                    <div key={metric.id}>
-                        <h1 className="text-5xl font-bold my-4">{metric.value}</h1>
-                        <h2 className='text-2xl'>{metric.label}</h2>
+                    <div key={metric.id} className='bg-yellow-500 size-50 content-center rounded-3xl'>
+                        <h1 className="text-white text-5xl font-bold">{metric.value}</h1>
+                        <h2 className='text-white text-2xl'>{metric.label}</h2>
                     </div>   
                 ))}
             </div>
             <h1 className="text-3xl font-bold my-4">Tickets:</h1>
             <div className="flex justify-center max-w-[180px] p-2 rounded-full bg-white dark:bg-gray-700">
-            //TODO: Add filter functionality
+            {/*TODO: Add filter functionality*/}
             <select name="filter" >
                 <option className="flex justify-center space-x-4 mt-4">Assigned Tickets</option>
                 <option className="flex justify-center space-x-4 mt-4">Unassigned Tickets</option>
@@ -51,27 +72,36 @@ function CustomerServiceDashboard() {
                     <li key={item.id} className='p-2'><button onClick={() => setModalIsOpen(true)}>{item.title}</button></li>
                 ))}
             </ul> */}
-            <table className="w-full mt-10 ">
-                <thead>
-                    <tr>
-                    <th>Ticket</th>
-                    <th>Status</th>
-                    <th>Assignee</th>
-                    <th>Due Date</th>
-                    </tr>
-                </thead>
-               
-                <tbody>
-                    {tickets.map(ticket => (
-                        <tr key={ticket.id}>
-                            <td className="border p-2">{ticket.title}</td>
-                            <td className="border p-2">{ticket.status}</td>
-                            <td className="border p-2">{ticket.assignee}</td>
-                            <td className="border p-2">{ticket.dueDate}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <div className='grid grid-cols-4'>
+                <div className='sticky top-0 rounded-tl-xl bg-gray-400 text-center'>
+                    Ticket
+                </div>
+                <div className='sticky top-0 bg-gray-400 text-center'>
+                    Status
+                </div>
+                <div className='sticky top-0 bg-gray-400 text-center'>
+                    Assignee
+                </div>
+                <div className='sticky top-0 rounded-tr-xl bg-gray-400 text-center'>
+                    Due Date
+                </div>
+            </div>
+
+            <div className='max-h-[400px] overflow-y-auto'>
+                <table className="w-full border border-t-0 border-separate border-spacing-y-0 rounded-b-xl">
+                
+                    <tbody>
+                        {tickets.map(ticket => (
+                            <tr key={ticket.id} className='hover:bg-white overflow-auto'>
+                                <td className="border border-l-0 border-b-0 border-white p-2">{ticket.title}</td>
+                                <td className="border border-b-0 border-white p-2">{ticket.status}</td>
+                                <td className="border border-b-0 border-white p-2">{ticket.assignee}</td>
+                                <td className="border border-r-0 border-b-0 border-white p-2">{ticket.dueDate}</td>
+                            </tr>
+                            ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     )
 }
