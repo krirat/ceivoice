@@ -6,7 +6,10 @@
     "express": "^5.2.1",
     "express-session": "^1.19.0",
     "mysql2": "^3.17.0",
+    "ollama": "^0.6.3",
     "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "zod": "^4.3.6",
+    "zod-to-json-schema": "^3.25.1"
   }
 }
