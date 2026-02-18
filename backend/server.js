@@ -1,32 +1,39 @@
-require('dotenv').config();
-const express = require('express');
-const mysql = require('mysql2');
-const cors = require('cors');
+import dotenv from 'dotenv';
+import express from 'express';
+import cors from 'cors';
+import passport from 'passport';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
 
+import authRoutes from './routes/auth.js';
+import aiRoutes from './routes/ai.js';
+import ticketRoutes from './routes/tickets.js';
 
+dotenv.config();
 const app = express();
 
+app.use(session({
+    secret: 'super_secret_key_change_this',
+    resave: false,
+    saveUninitialized: true
+}));
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
+app.use(passport.initialize());
+app.use(passport.session());
 
-const db = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER, // CHANGE THIS to your MySQL username
-    password: process.env.DB_PASSWORD, // CHANGE THIS to your MySQL password
-    database: process.env.DB_NAME // Ensure this matches your database name
-});
+// Any route in auth.js will now be prefixed with /api/auth
+app.use('/api/auth', authRoutes); 
 
-db.connect(err => {
-    if (err) {
-        console.error('Error connecting to MySQL:', err);
-        return;
-    }
-    console.log('Connected to MySQL Database.');
-});
+// Any route in ai.js will now be prefixed with /api
+app.use('/api', aiRoutes);
+
+app.use('/api/tickets', ticketRoutes);
 
 app.get('/api/health', (req, res) => {
     return res.status(200).send({message : 'API OK'})
-})
+});
 
 app.listen(process.env.SERVER_PORT, () => {
     console.log(`Server listening at http://localhost:${process.env.SERVER_PORT}`);

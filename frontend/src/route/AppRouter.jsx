@@ -2,6 +2,9 @@ import {Routes, Route, Navigate } from "react-router-dom";
 import AdminDashboard from "../components/Admin/AdminDashboard";
 import AdminTicket from "../components/Admin/AdminTicket";
 import AdminLayout from "../components/Admin/AdminLayout";
+import Login from "../components/Login";
+import Signup from "../components/Signup";
+import CustomerServiceDashboard from "../components/teamDashboard"ฃ
 
 const AppRouter = () =>{
     return(
@@ -10,7 +13,10 @@ const AppRouter = () =>{
         <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="tickets" element={<AdminTicket />} />
-      </Route>
+        </Route>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/cs-dashboard" element={<CustomerServiceDashboard />} />
     </Routes>
     );
 };
