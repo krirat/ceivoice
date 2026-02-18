@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import { Link, Navigate } from 'react-router-dom';
 
 const CEI_LOGO_URL = "https://cei.kmitl.ac.th/wp-content/uploads/2024/09/cropped-ceip-fav-1.png"; 
 
 const API_URL = import.meta.VITE_API_URL;
 
-function Login({ onLogin, onSwitchToSignup }) {
+function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -38,7 +39,8 @@ function Login({ onLogin, onSwitchToSignup }) {
 
     return (
         // flex-col justify-center: Centers content vertically
-        <div className="p-8 flex flex-col justify-center h-full">
+        <div className='flex justify-center'>
+        <div className="mt-10 w-110 p-8 flex flex-col justify-center h-full rounded-xl shadow-xl">
             <div className="flex justify-center mb-10">
                {/* Logo centering */}
                <img src={CEI_LOGO_URL} alt="CEi Logo" className="h-12 object-contain" />
@@ -74,17 +76,17 @@ function Login({ onLogin, onSwitchToSignup }) {
                 >
                     Get Started
                 </button>
+                <p className="text-gray-500 mx-auto">Don't have an account?</p>
+                <Link to="/signup" className="underline text-blue-600 font-semibold mx-auto">
+                    Signup
+                </Link>
+
             </form>
+            </div>
+
 
         <div className="mt-4 text-center">
-        <p className="text-gray-500">Don't have an account?</p>
-        <button 
-          type = "button"
-          onClick={onSwitchToSignup} 
-          className="text-blue-500 hover:underline font-semibold"
-        >
-          Sign Up
-        </button>
+
       </div>
             
             {error && (

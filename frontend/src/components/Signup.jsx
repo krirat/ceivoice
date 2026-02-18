@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+
 
 {/*import ReCAPTCHA from 'react-google-recaptcha';*/}
 
@@ -7,7 +9,7 @@ const CEI_LOGO_URL = "https://cei.kmitl.ac.th/wp-content/uploads/2024/09/cropped
 const API_URL = import.meta.VITE_API_URL;
 const SITE_KEY = import.meta.VITE_API_URL;
 
-function Signup({ onLogin, onSwitchToLogin }) {
+function Signup() {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -75,7 +77,8 @@ function Signup({ onLogin, onSwitchToLogin }) {
 
     return (
         // flex-col justify-center: Centers content vertically
-        <div className="p-8 flex flex-col justify-center h-full">
+        <div className='flex justify-center'>
+        <div className="mt-10 w-110 p-8 flex flex-col justify-center h-full rounded-xl shadow-xl bg-black">
             <div className="flex justify-center mb-10">
                {/* Logo centering */}
                <img src={CEI_LOGO_URL} alt="CEi Logo" className="h-12 object-contain" />
@@ -115,10 +118,10 @@ function Signup({ onLogin, onSwitchToLogin }) {
                     className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     />
                 <div className='flex justify-center'>
-                    <ReCAPTCHA
+                    {/* <ReCAPTCHA
                         sitekey={SITE_KEY}
                         onChange={(token => setCaptchaToken(token))}
-                    />
+                    /> */}
                 </div>
                 {/* Button Styling */}
                 {/* hover:bg-blue-700: Visual feedback for mouse users */}
@@ -139,14 +142,11 @@ function Signup({ onLogin, onSwitchToLogin }) {
                 Sign in with Google
             </a>
         <div className="mt-4 text-center">
-        <p className="text-gray-500">Already have an account?</p>
-        <button 
-          type='button'
-          onClick={onSwitchToLogin} 
-          className="text-blue-500 hover:underline font-semibold"
-        >
-          Log In
-        </button>
+        </div>
+        <p className="text-gray-500 mx-auto">Already have an account?</p>
+        <Link to="/login" className='underline text-black font-semibold mx-auto'>
+            Login
+        </Link>
       </div>
             
             {error && (

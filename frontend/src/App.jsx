@@ -2,6 +2,9 @@ import './App.css'
 import { BrowserRouter } from 'react-router-dom';
 import TeamDashboard from './components/teamDashboard.jsx'
 import AppRouter from "./route/AppRouter.jsx";
+import { useState } from 'react';
+
+
 function App() {
   const [authView, setAuthView] = useState('login');
 
