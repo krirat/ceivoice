@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
+    const formatDateForInput = (isoDateString) => {
+        if (!isoDateString) return '';
+        return new Date(isoDateString).toISOString().split('T')[0]; //return only date
+    };
+
 const EditTicket = () => {
-    const { id } = useParams(); // 1. Get ID from URL (e.g., "15")
+    const { id } = useParams(); // 1. Get ID from URL 
     const navigate = useNavigate();
     
     // State to hold form data
@@ -12,7 +17,8 @@ const EditTicket = () => {
         solution: '',
         assignee: '',
         urgency: 'Medium',
-        status: 0
+        status: 0,
+        due_date : ' '
     });
     const [loading, setLoading] = useState(true);
 
@@ -34,7 +40,8 @@ const EditTicket = () => {
                         solution: data.solution,
                         assignee: data.assignee,
                         urgency: data.urgency || 'Medium',
-                        status: data.status
+                        status: data.status,
+                        due_date: formatDateForInput(data.due_date)
                     });
                 } else {
                     alert("Ticket not found");
@@ -80,6 +87,8 @@ const EditTicket = () => {
     };
 
     if (loading) return <div>Loading ticket details...</div>;
+
+
 
     return (
         <div className="p-8 max-w-4xl mx-auto">
@@ -151,6 +160,18 @@ const EditTicket = () => {
                             <option value="Critical">Critical</option>
                         </select>
                     </div>
+                </div>
+
+                {/* DUE DATE FIELD */}
+                <div>
+                    <label className="block font-semibold mb-1">Due Date</label>
+                    <input 
+                        type="date" 
+                        name="due_date" 
+                        value={formData.due_date} 
+                        onChange={handleChange}
+                        className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500"
+                    />
                 </div>
 
                 {/* SUBMIT BUTTONS */}
