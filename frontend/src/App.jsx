@@ -1,11 +1,25 @@
+import { useState } from 'react'
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import EditTicket from './pages/EditTicket';
 import './App.css'
-import TeamDashboard from './components/teamDashboard.jsx'
+
+
 
 function App() {
-
   return (
-      <TeamDashboard user={{id:1}} team={{id:1, name:"Team 1", admin_id:0}} onBack={() => {}} />
-  )
+    <BrowserRouter>
+      <nav>
+        <Link to="/admin/tickets/:id/edit">edit ticket</Link> |{" "}
+
+      </nav>
+
+      <Routes>
+        <Route path="/admin/tickets/:id/edit" element={<EditTicket />} />  //:id
+      </Routes>
+    </BrowserRouter>
+  );
 }
+
+
 
 export default App
