@@ -1,6 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import passport from 'passport';
+import jwt from 'jsonwebtoken';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import dotenv from 'dotenv';
 import db from '../config/db.js';
@@ -8,6 +9,18 @@ import db from '../config/db.js';
 dotenv.config();
 
 const router = express.Router();
+
+const generateAccessToken = (user) => {
+    return jwt.sign(
+        { 
+            id: user.id, 
+            username: user.username, 
+            email: user.email 
+        }, 
+        process.env.JWT_SECRET, 
+        { expiresIn: '2h' }
+    );
+};
 
 //AUTH LOGIN/SIGNUP
 //1. SIGNUP
@@ -42,11 +55,14 @@ router.post('/signup', async (req,res) => {
                     console.error(err);
                     return res.status(500).send({ message: "Error registering user" });
                 }
+
+                const token = generateAccessToken(newUser);
                 
                 res.status(201).send({
                     success: true,
                     message: 'User registered successfully',
-                    user: { id: result.insertId, username: username, email: email }
+                    user: { id: result.insertId, username: username, email: email },
+                    token: token
                 });
             });
         } catch (error) {
@@ -75,10 +91,12 @@ router.post('/login', (req, res) => {
         const  user = results[0];
         const isMatch = await bcrypt.compare(password, user.password)
         if (isMatch) {
+            const token = generateAccessToken(user);
             res.send({
                 success: true,
                 message: 'login sucessful',
-                user: {id: user.id, username: user.username, email: user.email }
+                user: {id: user.id, username: user.username, email: user.email },
+                token: token
             });
         } else {
             res.status(400).send({message : 'invalid user/password'});

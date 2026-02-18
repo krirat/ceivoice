@@ -3,6 +3,7 @@ import ollama from 'ollama';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import db from '../config/db.js';
+import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -27,7 +28,7 @@ const ticketSchema = z.object({
     urgency_level: z.enum(["Low", "Medium", "High", "Critical"]).describe("Urgency based on impact and deadlines."),
 });
 
-router.post('/ollama', async (req, res) => {
+router.post('/ollama', verifyToken, async (req, res) => {
     const { email, problem } = req.body;
 
     if (!email || !problem) {
