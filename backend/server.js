@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import passport from 'passport';
 import session from 'express-session';
+import cookieParser from 'cookie-parser';
 
 import authRoutes from './routes/auth.js';
 import aiRoutes from './routes/ai.js';
@@ -16,6 +17,7 @@ app.use(session({
     saveUninitialized: true
 }));
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 app.use(passport.initialize());
 app.use(passport.session());

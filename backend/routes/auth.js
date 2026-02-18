@@ -143,7 +143,13 @@ router.get('/google',
 router.get('google/callback', 
   passport.authenticate('google', { failureRedirect: 'http://localhost:3000' }),
   function(req, res) {
-    res.redirect(`http://localhost:3000?username=${encodeURIComponent(req.user.username)}`);
+    const token = generateAccessToken(req.user);
+    res.cookie('auth_token', token, { 
+        httpOnly: false, 
+        secure: false, // true for HTTPS
+        maxAge: 60000 
+    });
+    res.redirect('http://localhost:3000/auth/success');
   }
 );
 
