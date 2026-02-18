@@ -12,3 +12,7 @@ on fetching other routes --> retrieve 'token' from local storage and attach head
 ## GOOGLE LOGIN COOKIE FLOW
 
 click login button --> Backend -(redirect)-> Google -(redirect)-> Backend --> creates a cookie named auth_token with the JWT inside. --> backend -(redirect)-> /auth/success --> authSuccess.jsx logic (similar to normal login but with cookie) --> page go to /dashboard (or whatever set)
+
+# OLLAMA USAGE
+1. ollama pull <model_name>
+2. in routes/ai.js, change ollama.chat() `model : '<model_name>'`
