@@ -56,13 +56,11 @@ router.post('/signup', async (req,res) => {
                     return res.status(500).send({ message: "Error registering user" });
                 }
 
-                const token = generateAccessToken(newUser);
                 
                 res.status(201).send({
                     success: true,
                     message: 'User registered successfully',
                     user: { id: result.insertId, username: username, email: email },
-                    token: token
                 });
             });
         } catch (error) {

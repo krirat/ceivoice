@@ -37,6 +37,15 @@ router.post('/ollama', verifyToken, async (req, res) => {
     }
 
     try {
+        const [assigneeRows] = await db.promise().query('SELECT id, username, department FROM users where role = 1');
+        const assigneeMap = {};
+        const assigneeListString = assigneeRows
+            .map(person => {
+                assigneeMap[person.username] = person.id; // ID for database query
+                return `- ${person.username}: ${person.department}`; // string for AI prompt
+            })
+            .join('\n');
+
         const jsonSchemaObj = zodToJsonSchema(ticketSchema);
         delete jsonSchemaObj.$schema;
 
@@ -46,12 +55,7 @@ router.post('/ollama', verifyToken, async (req, res) => {
         Problem: "${problem}"
 
         ### AVAILABLE ASSIGNEES (Select strictly from this list)
-        NAME : SCOPES
-        - Prayut : IT
-        - Prawit : HR
-        - Anutin : Academics
-        - Teng : Facilities
-        - Aung : General
+        ${assigneeListString}
 
         You MUST generate a JSON response with these specific fields based on the problem:
         - suggested_title: A short title (max 100 chars).
@@ -63,7 +67,7 @@ router.post('/ollama', verifyToken, async (req, res) => {
         `;
 
         const response = await ollama.chat({
-            model: 'qwen2.5:14b',
+            model: 'gemma3:12b-it-qat',
             messages: [
                 { role: 'user', content: promptText }
             ],
@@ -77,9 +81,27 @@ router.post('/ollama', verifyToken, async (req, res) => {
         console.log("Raw AI Response:", response.message.content);
 
         const draftTicket = ticketSchema.parse(JSON.parse(response.message.content));
+        const assignedName = draftTicket.suggested_assignee;
+        const assignedId = assigneeMap[assignedName] || null;
 
-        const insertDraftSQL = '' //TO ADD DATABASE
-        res.json({ reply: draftTicket });
+        const insertDraftSQL = 'INSERT INTO tickets (title, summary, category,  solution, assignee, created_by, last_updated, status) VALUES (?,?,?,?,?,?,NOW(),0)'
+        const user_id = req.user.id;
+
+        const [result] = await db.promise().query(insertDraftSQL, [
+            draftTicket.suggested_title,
+            draftTicket.suggested_summary,
+            draftTicket.suggested_category,
+            draftTicket.suggested_solution,
+            assignedId,
+            user_id
+        ]);
+
+        res.status(200).send({
+            success : true,
+            message: 'Draft ticket created',
+            ticketId: result.insertId,
+            ticket: draftTicket
+        });
 
     } catch (error) {
         console.error("Error details:", error);
