@@ -8,6 +8,8 @@ dotenv.config();
 
 const router = express.Router();
 
+
+
 // Get draft Ticket Info
 router.get('/:id', verifyToken, async (req, res) => {
     try {
@@ -21,12 +23,12 @@ router.get('/:id', verifyToken, async (req, res) => {
 
 // Update ticket
 router.put('/:id', verifyToken, async (req, res) => {
-    const { title, summary, solution, assignee, status } = req.body; // 'status' will be 1 (Active)
+    const { title, summary, solution,due_date, assignee, status } = req.body; // 'status' will be 1 (Active)
     
     try {
         await db.promise().query(
-            'UPDATE tickets SET title=?, summary=?, solution=?, assignee=?, status=?, last_updated=NOW() WHERE id=?',
-            [title, summary, solution, assignee, status, req.params.id]
+            'UPDATE tickets SET title=?, summary=?, solution=?, due_date=?, assignee=?, status=?, last_updated=NOW() WHERE id=?',
+            [title, summary, solution, due_date, assignee, status, req.params.id]
         );
         res.json({ success: true, message: "Ticket updated successfully" });
     } catch (err) {
