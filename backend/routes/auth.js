@@ -141,7 +141,7 @@ router.get('/google',
 );
 
 router.get('google/callback', 
-  passport.authenticate('google', { failureRedirect: 'http://localhost:3000' }),
+  passport.authenticate('google', { failureRedirect: 'http://localhost:5173' }),
   function(req, res) {
     const token = generateAccessToken(req.user);
     res.cookie('auth_token', token, { 
@@ -149,7 +149,7 @@ router.get('google/callback',
         secure: false, // true for HTTPS
         maxAge: 60000 
     });
-    res.redirect('http://localhost:3000/auth/success');
+    res.redirect('http://localhost:5173/auth/success');
   }
 );
 
