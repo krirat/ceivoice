@@ -4,7 +4,7 @@ import AdminTicket from "../components/Admin/AdminTicket";
 import AdminLayout from "../components/Admin/AdminLayout";
 import Login from "../components/Login";
 import Signup from "../components/Signup";
-import CustomerServiceDashboard from "../components/teamDashboard"ฃ
+import CustomerServiceDashboard from "../components/teamDashboard";
 
 const AppRouter = () =>{
     return(
