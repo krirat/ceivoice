@@ -29,9 +29,10 @@ const ticketSchema = z.object({
 });
 
 router.post('/ollama', verifyToken, async (req, res) => {
-    const { email, problem } = req.body;
+    const email = req.user.email; //from decoded token
+    const {problem} = req.body;
 
-    if (!email || !problem) {
+    if (!email && !problem) {
         return res.status(400).send({ message: 'email and problem are required.' });
     }
 
