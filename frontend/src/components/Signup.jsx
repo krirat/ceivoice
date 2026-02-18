@@ -78,7 +78,7 @@ function Signup() {
     return (
         // flex-col justify-center: Centers content vertically
         <div className='flex justify-center'>
-        <div className="mt-10 w-110 p-8 flex flex-col justify-center h-full rounded-xl shadow-xl bg-black">
+        <div className="mt-10 w-110 p-8 flex flex-col justify-center h-full rounded-xl shadow-xl">
             <div className="flex justify-center mb-10">
                {/* Logo centering */}
                <img src={CEI_LOGO_URL} alt="CEi Logo" className="h-12 object-contain" />
