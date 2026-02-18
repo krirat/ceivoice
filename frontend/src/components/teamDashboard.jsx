@@ -34,9 +34,9 @@ const tickets = [
 ];
 
 const performanceMetrics = [
-    { id: 1, label: 'Tickets', value: 100 },
-    { id: 2, label: 'Solved', value: 10 },
-    { id: 3, label: 'Failed', value: 5 },
+    { id: 1, label: 'Tickets', value: 100, color: "bg-yellow-500"},
+    { id: 2, label: 'Solved', value: 10, color: "bg-green-500" },
+    { id: 3, label: 'Failed', value: 5, color: "bg-red-500" },
 ];
 
 function CustomerServiceDashboard() {
@@ -50,7 +50,7 @@ function CustomerServiceDashboard() {
             </Modal>
             <div className="my-20 flex text-center justify-around flex-row">
                 {performanceMetrics.map(metric => (
-                    <div key={metric.id} className='bg-yellow-500 size-50 content-center rounded-3xl'>
+                    <div key={metric.id} className={`${metric.color} size-50 content-center rounded-3xl`}>
                         <h1 className="text-white text-5xl font-bold">{metric.value}</h1>
                         <h2 className='text-white text-2xl'>{metric.label}</h2>
                     </div>   
@@ -87,7 +87,7 @@ function CustomerServiceDashboard() {
                 </div>
             </div>
 
-            <div className='max-h-[400px] overflow-y-auto'>
+            <div className='max-h-[300px] overflow-y-auto'>
                 <table className="w-full border border-t-0 border-separate border-spacing-y-0 rounded-b-xl">
                 
                     <tbody>
