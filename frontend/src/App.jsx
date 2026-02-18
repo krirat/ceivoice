@@ -1,11 +1,15 @@
 import './App.css'
+import { BrowserRouter } from 'react-router-dom';
 import TeamDashboard from './components/teamDashboard.jsx'
-
+import AppRouter from "./route/AppRouter.jsx";
 function App() {
 
   return (
-      <TeamDashboard user={{id:1}} team={{id:1, name:"Team 1", admin_id:0}} onBack={() => {}} />
-  )
+    <BrowserRouter>
+      {/* เรียกใช้งานชุดเส้นทางที่เราตั้งค่าไว้ */}
+      <AppRouter />
+    </BrowserRouter>
+  ) ;
 }
 
 export default App
