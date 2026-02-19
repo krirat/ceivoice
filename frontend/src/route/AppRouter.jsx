@@ -5,6 +5,7 @@ import AdminLayout from "../components/Admin/AdminLayout";
 import Login from "../components/Login";
 import Signup from "../components/Signup";
 import CustomerServiceDashboard from "../components/teamDashboard";
+import {CardDemo} from "../pages/TicketSubmit"
 
 const AppRouter = () =>{
     return(
@@ -17,6 +18,7 @@ const AppRouter = () =>{
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/cs-dashboard" element={<CustomerServiceDashboard />} />
+        <Route path="/ticket-submit" element={<CardDemo />} />
     </Routes>
     );
 };
