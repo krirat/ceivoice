@@ -2,9 +2,69 @@ import { Ticket } from "lucide-react";
 import DefaultSidebar from "./AdminSidebar";
 import React, {useEffect, useState} from "react";
 import { useMemo } from "react";
+import AdminTicketTable from "./AdminTicketTable";
 
-export default function AdminTicket({ tickets = [] }) {
+const initialtickets = [
+  {
+    id: 1,
+    title: "Login page broken",
+    status: "open",
+    category: "Bug",
+    assignee: "John Doe",
+    due_date: "2026-02-28",
+  },
+  {
+    id: 2,
+    title: "Add dark mode",
+    status: "in_progress",
+    category: "Feature Request",
+    assignee: "Jane Smith",
+    due_date: "2026-03-10",
+  },
+  {
+    id: 3,
+    title: "Fix payment gateway",
+    status: "resolved",
+    category: "Technical Issue",
+    assignee: "Unassigned",
+    due_date: "2026-02-20",
+  },
+  {
+    id: 4,
+    title: "Reset password not working",
+    status: "closed",
+    category: "Bug",
+    assignee: "",
+    due_date: "2026-02-15",
+  },
+  {
+    id: 5,
+    title: "Upgrade database",
+    status: "open",
+    category: "Maintenance",
+    assignee: "Alex Johnson",
+    due_date: "2026-03-01",
+  },
+  {
+    id: 6,
+    title: "Improve dashboard UI",
+    status: "in_progress",
+    category: "UI/UX",
+    assignee: "Emily Brown",
+    due_date: "2026-02-18",
+  },
+  {
+    id: 7,
+    title: "Server downtime issue",
+    status: "open",
+    category: "Infrastructure",
+    assignee: "Unassigned",
+    due_date: "2026-02-10",
+  },
+];
 
+export default function AdminTicket() {
+    const tickets = initialtickets;
     const sum_ticket_info = useMemo(() => {
         const summary = {
             total_tickets: tickets.length,
@@ -52,12 +112,12 @@ export default function AdminTicket({ tickets = [] }) {
     }, [tickets]);
 
     return(
-        <div style={{ display: "flex" }}>
+        <div className="flex flex-col item-center">
             
         <div>
             <h1 className="text-2xl font-bold mb-4">Ticket Info.</h1>
         
-        <div style={{display: "flex", gap: "20px", flexWrap: "wrap"}}>
+        <div className="flex flex-wrap gap-6 justify-center w-full">
             <div style={cardStyle}>
                 <h3>Total Ticket</h3>
                 <p>{sum_ticket_info.total_tickets}</p>
@@ -76,6 +136,9 @@ export default function AdminTicket({ tickets = [] }) {
             </div>
 
         </div>
+        </div>
+        <div className="mt-8">
+            <AdminTicketTable/>
         </div>
     </div>
     );
