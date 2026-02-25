@@ -25,24 +25,13 @@ function App() {
   //     setActiveTeam(null);
   // };
 
-
   return (
-
     <BrowserRouter>
-      <nav>
-        <Link to="/admin/tickets/:id/edit">edit ticket</Link> |{" "}
-        <Link to="/jwt-example">JWT Decode Example</Link> |{" "}
-        <Link to= "/">home</Link>
-      </nav>
-
-      <Routes>
-        <Route path="/admin/tickets/:id/edit" element={<EditTicket />} />  //:id
-        <Route path="/jwt-example" element={<JwtDecodeExample />} />
-        <Route path="/" />
-      </Routes>
+      <AppRouter />
     </BrowserRouter>
   );
 }
+
 // <BrowserRouter>
 //   <nav>
 //     <Link to="/admin/tickets/:id/edit">edit ticket</Link> |{" "}
