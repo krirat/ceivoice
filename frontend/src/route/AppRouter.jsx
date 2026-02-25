@@ -1,12 +1,12 @@
-import {Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import AdminDashboard from "../components/Admin/AdminDashboard";
 import AdminTicket from "../components/Admin/AdminTicket";
 import AdminLayout from "../components/Admin/AdminLayout";
 import Adminassignee from "@/components/Admin/AdminAssignee";
 import Login from "../components/Login";
 import Signup from "../components/Signup";
-import CustomerServiceDashboard from "../components/teamDashboard";
-import {CardDemo} from "../pages/TicketSubmit"
+import CustomerServiceDashboard from "../pages/teamDashboard";
+import { CardDemo } from "../pages/TicketSubmit"
 
 const AppRouter = () =>{
     return(
