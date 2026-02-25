@@ -3,9 +3,9 @@ import { Outlet } from "react-router-dom";
 
 export default function AdminLayout() {
   return (
-    <div style={{ display: "flex" }}>
+    <div className="min-h-screen flex flex-col">
       <DefaultSidebar />
-      <div style={{ padding: "20px", width: "100%" }}>
+      <div className="flex-1 p-6 bg-gray-50">
         <Outlet />
       </div>
     </div>

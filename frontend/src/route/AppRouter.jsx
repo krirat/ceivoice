@@ -2,6 +2,7 @@ import {Routes, Route, Navigate } from "react-router-dom";
 import AdminDashboard from "../components/Admin/AdminDashboard";
 import AdminTicket from "../components/Admin/AdminTicket";
 import AdminLayout from "../components/Admin/AdminLayout";
+import Adminassignee from "@/components/Admin/AdminAssignee";
 import Login from "../components/Login";
 import Signup from "../components/Signup";
 import CustomerServiceDashboard from "../components/teamDashboard";
@@ -14,6 +15,7 @@ const AppRouter = () =>{
         <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="tickets" element={<AdminTicket />} />
+            <Route path="assignee" element={<Adminassignee/>}/>
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />

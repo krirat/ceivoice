@@ -58,7 +58,7 @@ export default function AdminDashboard() {
       
       <div style={{ padding: "20px", width: "100%" }}>
          
-        <h1>Admin Dashboard</h1>
+        <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
 
         {/* KPI Section */}
         <div style={{ display: "flex", gap: "20px" }}>
