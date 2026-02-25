@@ -57,7 +57,7 @@ function CustomerServiceDashboard() {
 
     return (
         <div className="flex flex-col min-h-screen p-4 text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800">
-            <Modal isOpen={modalIsOpen} className="rounded-xl bg-white dark:bg-gray-700 p-4 w-1/2 min-w-[300px] mx-auto mt-20 border-2 border-gray-300">
+            <Modal isOpen={modalIsOpen} overlayClassName='pb-8 fixed inset-0 overflow-scroll bg-[#FFFFFF80] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]' className="rounded-xl bg-white dark:bg-gray-700 p-4 w-1/2 min-w-[300px] mx-auto mt-20 border-2 border-gray-300">
                 <TicketInfo closeTicket={() => setModalIsOpen(false)} ticketData={ticketData} />
             </Modal>
             <div className="my-20 flex text-center justify-around flex-row">
