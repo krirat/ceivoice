@@ -10,27 +10,26 @@ const tickets = [
     { id: 1, title: 'First Item', status: 'Open', assignee: 'Jane Doe', dueDate: '2028-01-02' },
     { id: 2, title: 'Second Item', status: 'In Progress', assignee: 'John Smith', dueDate: '2028-01-03' },
     { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
-    { id: 3, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' }
+    { id: 4, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 5, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 6, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 7, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 8, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 9, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 10, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 11, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 12, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 13, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 14, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 15, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 16, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 17, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 18, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 19, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 20, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 21, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 22, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' },
+    { id: 23, title: 'Third Item', status: 'Closed', assignee: 'Alice Johnson', dueDate: '2028-01-01' }
 ];
 
 const performanceMetrics = [
@@ -54,11 +53,17 @@ const ticketData = {
 function CustomerServiceDashboard() {
 
     const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [ticketId, setTicketId] = useState(null);
+
+    const handleTicketClick = (id) => {
+        setTicketId(id);
+        setModalIsOpen(true);
+    }
 
     return (
         <div className="flex flex-col min-h-screen p-4 text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800">
             <Modal isOpen={modalIsOpen} overlayClassName='pb-8 fixed inset-0 overflow-scroll bg-[#FFFFFF80] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]' className="rounded-xl bg-white dark:bg-gray-700 p-4 w-1/2 min-w-[300px] mx-auto mt-20 border-2 border-gray-300">
-                <TicketInfo closeTicket={() => setModalIsOpen(false)} ticketData={ticketData} />
+                <TicketInfo closeTicket={() => setModalIsOpen(false)} ticketId={ticketId} />
             </Modal>
             <div className="my-20 flex text-center justify-around flex-row">
                 {performanceMetrics.map(metric => (
@@ -104,7 +109,7 @@ function CustomerServiceDashboard() {
 
                     <tbody>
                         {tickets.map(ticket => (
-                            <tr key={ticket.id} className='hover:bg-white overflow-auto' onClick={() => setModalIsOpen(true)}>
+                            <tr key={ticket.id} className='hover:bg-white overflow-auto' onClick={() => handleTicketClick(ticket.id)}>
                                 <td className="border border-l-0 border-b-0 border-white p-2">{ticket.title}</td>
                                 <td className="border border-b-0 border-white p-2">{ticket.status}</td>
                                 <td className="border border-b-0 border-white p-2">{ticket.assignee}</td>
