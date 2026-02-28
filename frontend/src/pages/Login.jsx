@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
 const CEI_LOGO_URL = "https://cei.kmitl.ac.th/wp-content/uploads/2024/09/cropped-ceip-fav-1.png";
 
@@ -15,7 +15,7 @@ function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-
+    let navigate = useNavigate();
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -23,6 +23,8 @@ function Login() {
             setError('Please enter a username.');
             return;
         }
+
+
 
         try {
             const response = await fetch(`${API_URL}/auth/login`, {
@@ -40,11 +42,11 @@ function Login() {
 
                 if (decoded.role === role.ADMIN) {
                     console.log("Redirecting to admin dashboard...");
-                    return <Navigate to="/admin" />;
+                    return navigate("/admin");
                 } else if (decoded.role === role.ASSIGNEE) {
-                    return <Navigate to="/cs-dashboard" />;
+                    return navigate("/cs-dashboard");
                 } else {
-                    return <Navigate to="/customer-dashboard" />;
+                    return navigate("/customer-dashboard");
                 }
             } else {
                 setError(data.message || 'Login failed.');
