@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import AdminDashboard from "../components/Admin/AdminDashboard";
 import AdminTicket from "../components/Admin/AdminTicket";
 import AdminLayout from "../components/Admin/AdminLayout";
-import Adminassignee from "@/components/Admin/AdminAssignee";
+import AdminAssignee from "@/components/Admin/AdminAssignee";
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
 import AuthSuccess from "@/authSuccess";
