@@ -13,22 +13,23 @@ import ProtectedRoute from "../hooks/privateRoutes";
 const AppRouter = () => {
     return (
         <Routes>
-            {/* หน้าทั่วไป */}
+            {/* normal page */}
             <Route path="/" element={<Navigate to="/admin" />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/auth/success" element={<AuthSuccess />} />
             <Route path="/ticket-submit" element={<CardDemo />} />
 
-            {/* หน้า Admin (ดึงออกมานอก ProtectedRoute ชั่วคราวเพื่อให้ดูหน้าจอได้) */}
-            <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<AdminDashboard />} />
-                <Route path="tickets" element={<AdminTicket />} />
-                <Route path="assignee" element={<AdminAssignee />} />
-            </Route>
-
-            {/* หน้าที่ต้อง Login */}
+            {/* Login (ProtectedRoute) */}
             <Route element={<ProtectedRoute />}>
+                {/* หน้า Admin ทั้งหมด */}
+                <Route path="/admin" element={<AdminLayout />}>
+                    <Route index element={<AdminDashboard />} />
+                    <Route path="tickets" element={<AdminTicket />} />
+                    <Route path="assignee" element={<AdminAssignee />} />
+                </Route>
+                
+                {/* Dashboard */}
                 <Route path="/cs-dashboard" element={<CustomerServiceDashboard />} />
                 <Route path="/customer-dashboard" element={<CardDemo />} />
             </Route>
