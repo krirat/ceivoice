@@ -107,7 +107,7 @@ router.post('/login', (req, res) => {
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:5001/auth/google/callback"
+    callbackURL: "http://localhost:5001/api/auth/google/callback"
 },
 function(accessToken, refreshToken, profile, done) {
     const email = profile.emails[0].value;
@@ -122,10 +122,10 @@ function(accessToken, refreshToken, profile, done) {
             return done(null,results[0])
         } else {
             // User is new
-            const sql = 'INSERT INTO users (username, email, password, id_token) VALUES (?, ?, ?, ?)';
+            const sql = 'INSERT INTO users (username, email, password, id_token, role) VALUES (?, ?, ?, ?, 0)';
             db.query(sql, [username, email, null, token_id], (err, result) => {
                 if (err) return done(err);
-                const newUser = { id: result.insertId, username: username, email: email, id_token: token_id};
+                const newUser = { id: result.insertId, username: username, email: email, id_token: token_id, role : 0};
                 return done(null, newUser);
             });
         }
@@ -133,14 +133,12 @@ function(accessToken, refreshToken, profile, done) {
   }
 ));
 
-passport.serializeUser((user, done) => done(null, user));
-passport.deserializeUser((user, done) => done(null, user));
 router.get('/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
+  passport.authenticate('google', { scope: ['profile', 'email'], session:   false })
 );
 
-router.get('google/callback', 
-  passport.authenticate('google', { failureRedirect: 'http://localhost:5173' }),
+router.get('/google/callback', 
+  passport.authenticate('google', { failureRedirect: 'http://localhost:5173', session:   false }),
   function(req, res) {
     const token = generateAccessToken(req.user);
     res.cookie('auth_token', token, { 
