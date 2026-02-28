@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import EditTicket from './pages/EditTicket';
+import JwtDecodeExample from './pages/jwtDecodeExample';
 import './App.css'
 import AppRouter from "./route/AppRouter.jsx";
 
@@ -24,14 +25,13 @@ function App() {
   //     setActiveTeam(null);
   // };
 
-
   return (
     <BrowserRouter>
-      {/* เรียกใช้งานชุดเส้นทางที่เราตั้งค่าไว้ */}
       <AppRouter />
     </BrowserRouter>
   );
 }
+
 // <BrowserRouter>
 //   <nav>
 //     <Link to="/admin/tickets/:id/edit">edit ticket</Link> |{" "}

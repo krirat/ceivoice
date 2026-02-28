@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
 const CEI_LOGO_URL = "https://cei.kmitl.ac.th/wp-content/uploads/2024/09/cropped-ceip-fav-1.png";
 
@@ -15,7 +15,22 @@ function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    let navigate = useNavigate();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [successMessage, setSuccessMessage] = useState(location.state?.message || '');
+
+
+    useEffect(() => {
+        if (successMessage) {
+            const timer = setTimeout(() => {
+                setSuccessMessage('');
+                window.history.replaceState({}, document.title);
+            }, 5000); // 5000 milliseconds
+
+            return () => clearTimeout(timer);
+        }
+    }, [successMessage]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -42,11 +57,11 @@ function Login() {
 
                 if (decoded.role === role.ADMIN) {
                     console.log("Redirecting to admin dashboard...");
-                    return navigate("/admin");
+                    navigate('/admin');
                 } else if (decoded.role === role.ASSIGNEE) {
-                    return navigate("/cs-dashboard");
+                    navigate('/cs-dashboard');
                 } else {
-                    return navigate("/customer-dashboard");
+                    navigate('/customer-dashboard');
                 }
             } else {
                 setError(data.message || 'Login failed.');
@@ -59,6 +74,11 @@ function Login() {
     return (
         // flex-col justify-center: Centers content vertically
         <div className='flex justify-center'>
+            {successMessage && (
+                <div className="absolute top-0 mt-4 p-4 bg-green-100 text-green-700 border border-green-300 rounded-xl shadow-md font-medium z-10 w-full max-w-md text-center transition-all">
+                    ✅ {successMessage}
+                </div>
+            )}
             <div className="mt-10 w-110 p-8 flex flex-col justify-center h-full rounded-xl shadow-xl">
                 <div className="flex justify-center mb-10">
                     {/* Logo centering */}
@@ -66,7 +86,7 @@ function Login() {
                 </div>
 
                 <h2 className="text-3xl font-extrabold text-gray-800 dark:text-white mb-2 text-center transition-colors delay-200">Welcome</h2>
-                <p className="text-gray-500 dark:text-gray-200 text-center mb-8 transition-colors duration-300">Sign in to manage your tasks</p>
+                <p className="text-gray-500 dark:text-gray-200 text-center mb-8 transition-colors duration-300">Login to start</p>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                     {/* Input Field Styling */}
@@ -79,7 +99,7 @@ function Login() {
                         onChange={(e) => setUsername(e.target.value)}
                     />
                     <input
-                        type="text"
+                        type="password"
                         placeholder="Enter your password"
                         className="w-full p-4 bg-gray-50 border border-gray-200 dark:bg-gray-700 dark:text-white rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-700 transition-all"
                         value={password}
@@ -96,7 +116,7 @@ function Login() {
                         Get Started
                     </button>
                     <p className="text-gray-500 mx-auto">Don't have an account?</p>
-                    <Link to="/signup" className="underline text-blue-600 font-semibold mx-auto">
+                    <Link to="/signup" className="underline text-black font-semibold mx-auto">
                         Signup
                     </Link>
 

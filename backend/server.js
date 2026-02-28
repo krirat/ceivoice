@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.js';
 import aiRoutes from './routes/ai.js';
 import ticketRoutes from './routes/tickets.js';
+import dashboardRoutes from './routes/dashboard.js';
 
 dotenv.config();
 const app = express();
@@ -30,6 +31,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api', aiRoutes);
 
 app.use('/api/tickets', ticketRoutes);
+
+app.use('/api/dashboard', dashboardRoutes);
 
 app.get('/api/health', (req, res) => {
     return res.status(200).send({message : 'API OK'})

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-
-{/*import ReCAPTCHA from 'react-google-recaptcha';*/ }
 
 const CEI_LOGO_URL = "https://cei.kmitl.ac.th/wp-content/uploads/2024/09/cropped-ceip-fav-1.png";
 
@@ -14,8 +12,9 @@ function Signup() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [captchaToken, setCaptchaToken] = useState(null);
     const [avatar, setAvatar] = useState(null);
+
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -32,14 +31,9 @@ function Signup() {
             setError('Please enter a password.');
             return;
         }
-        if (!captchaToken) {
-            setError('Please verify that you are not a robot.');
-            return;
-        }
-
 
         try {
-            const response = await fetch(`${API_URL}/signup`, {
+            const response = await fetch(`${API_URL}/auth/signup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, email, password }),
@@ -47,31 +41,13 @@ function Signup() {
             const data = await response.json();
 
             if (response.ok && data.success) {
-                if (avatar) {
-                    await handleImageUpload(username);
-                }
-                localStorage.setItem('todo_username', username);
-                onLogin(username);
+                navigate('/login', { state: { message: "Account created successfully! Please log in." } });
+                
             } else {
-                setError(data.message || 'Login failed.');
+                setError(data.message || 'Signup failed.');
             }
         } catch (err) {
             setError('Network error: Could not connect to server.');
-        }
-    };
-
-    const handleImageUpload = async (username) => {
-        const formData = new FormData();
-        formData.append('avatar', avatar);   // The file
-        formData.append('username', username); // Tell backend who this is for
-
-        try {
-            await fetch(`${API_URL}/upload-avatar`, {
-                method: 'POST',
-                body: formData, // No headers needed, browser handles it
-            });
-        } catch (err) {
-            console.error("Image upload failed, but account was created.");
         }
     };
 
@@ -85,7 +61,7 @@ function Signup() {
                 </div>
 
                 <h2 className="text-3xl font-extrabold text-gray-800 dark:text-white mb-2 text-center transition-colors delay-200">Welcome</h2>
-                <p className="text-gray-500 dark:text-gray-200 text-center mb-8 transition-colors duration-300">Sign in to manage your tasks</p>
+                <p className="text-gray-500 dark:text-gray-200 text-center mb-8 transition-colors duration-300">Sign up to start</p>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                     {/* Input Field Styling */}
@@ -105,23 +81,13 @@ function Signup() {
                         onChange={(e) => setEmail(e.target.value)}
                     />
                     <input
-                        type="text"
+                        type="password"
                         placeholder="Enter your password"
                         className="w-full p-4 bg-gray-50 border border-gray-200 dark:bg-gray-700 dark:text-white rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-700 transition-all"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => setAvatar(e.target.files[0])}
-                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                    />
                     <div className='flex justify-center'>
-                        {/* <ReCAPTCHA
-                        sitekey={SITE_KEY}
-                        onChange={(token => setCaptchaToken(token))}
-                    /> */}
                     </div>
                     {/* Button Styling */}
                     {/* hover:bg-blue-700: Visual feedback for mouse users */}
@@ -135,7 +101,7 @@ function Signup() {
                 </form>
                 {/* TODO: Redirect to authSuccess.jsx after logging in with google */}
                 <a
-                    href="http://localhost:5001/auth/google"
+                    href="http://localhost:5001/api/auth/google"
                     className="w-full mt-5 flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 p-4 rounded-2xl font-bold hover:bg-gray-50 transition"
                 >
                     {/* Simple Google SVG Icon */}

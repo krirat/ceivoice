@@ -5,6 +5,7 @@ import AdminLayout from "../components/Admin/AdminLayout";
 import Adminassignee from "@/components/Admin/AdminAssignee";
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
+import AuthSuccess from "@/authSuccess";
 import CustomerServiceDashboard from "../pages/teamDashboard";
 import { CardDemo } from "../pages/TicketSubmit";
 import ProtectedRoute from "../hooks/privateRoutes";
@@ -15,6 +16,7 @@ const AppRouter = () => {
             <Route path="/" element={<Navigate to="/admin" />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/auth/success" element={<AuthSuccess />} />
             <Route path="/ticket-submit" element={<CardDemo />} />
             <Route element={<ProtectedRoute />}>
 
@@ -24,6 +26,7 @@ const AppRouter = () => {
                     <Route path="assignee" element={<Adminassignee />} />
                 </Route>
                 <Route path="/cs-dashboard" element={<CustomerServiceDashboard />} />
+                <Route path="/customer-dashboard" element={<CardDemo />} />
             </Route>
         </Routes>
     );
