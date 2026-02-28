@@ -6,28 +6,28 @@ const initialTickets = [
     username: "Tom",
     email: "Tom@example.com",
     role: "user",
-    department: "elec",
+    department: "IT",
   },
   {
     id: 2,
     username: "Alice",
     email: "Alice@example.com",
     role: "user",
-    department: "civil",
+    department: "HR",
   },
   {
     id: 3,
     username: "Havard",
     email: "Havard@example.com",
     role: "assignee",
-    department: "com",
+    department: "Finance",
   },
   {
     id: 4,
     username: "Robert",
     email: "Robert@example.com",
     role: "user",
-    department: "com",
+    department: "etc",
   },
 ];
 
@@ -102,9 +102,10 @@ export default function Adminassignee() {
                     }
                     className="border rounded p-1"
                   >
-                    <option value="elec">elec</option>
-                    <option value="civil">civil</option>
-                    <option value="com">com</option>
+                    <option value="IT">IT</option>
+                    <option value="HR">HR</option>
+                    <option value="Finance">Finance</option>
+                    <option value="etc">etc</option>
                   </select>
                 </td>
               </tr>

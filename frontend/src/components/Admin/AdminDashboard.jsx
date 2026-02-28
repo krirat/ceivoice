@@ -68,39 +68,49 @@ export default function AdminDashboard() {
           <KpiCard title="AVG Resolution" value={stats.avgResolutionTime} />
         </div>
 
-        {/* Chart */}
-        <div style={{ marginTop: "40px", height: "300px" }}>
-          <h2>Tickets Created This Week</h2>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={ticketsTrend}>
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="tickets" stroke="#6366f1" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+        {/* Charts Row */}
+<div
+  style={{
+    marginTop: "40px",
+    display: "flex",
+    gap: "30px",
+    width: "100%",
+    height: "350px",
+  }}
+>
+  {/* Line Chart (LEFT) */}
+  <div style={{ flex: 2 }}>
+    <h2>Tickets Created This Week</h2>
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={ticketsTrend}>
+        <XAxis dataKey="date" />
+        <YAxis />
+        <Tooltip />
+        <Line type="monotone" dataKey="tickets" stroke="#6366f1" />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
 
-        {/**Pie Chart */}
-        <div style={{ marginTop: "40px", height: "350px" }}>
-            <h2>Ticket Status Distribution</h2>
-            <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                    <Pie
-                data={statusDistribution}
-                dataKey="value"
-                nameKey="name"
-                outerRadius={80}
-              >
-                <Cell fill="#ef4444" />
-                <Cell fill="#facc15" />
-                <Cell fill="#22c55e" />
-              </Pie>
-              <Tooltip />
-                <legend />
-            </PieChart>
-            </ResponsiveContainer>
-        </div>
+  {/* Pie Chart (RIGHT) */}
+  <div style={{ flex: 1 }}>
+    <h2>Ticket Status Distribution</h2>
+    <ResponsiveContainer width="100%" height="100%">
+      <PieChart>
+        <Pie
+          data={statusDistribution}
+          dataKey="value"
+          nameKey="name"
+          outerRadius={90}
+        >
+          <Cell fill="#ef4444" />
+          <Cell fill="#facc15" />
+          <Cell fill="#22c55e" />
+        </Pie>
+        <Tooltip />
+      </PieChart>
+    </ResponsiveContainer>
+  </div>
+</div>
       </div>
     </div>
   );
