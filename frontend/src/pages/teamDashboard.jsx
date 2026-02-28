@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import TicketInfo from '../components/ticketInfo';
 import { FaTrash, FaCheck, FaSignOutAlt, FaPlus, FaClipboardList, FaCoffee, FaCalendarAlt } from 'react-icons/fa';
@@ -54,6 +54,27 @@ function CustomerServiceDashboard() {
 
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [ticketId, setTicketId] = useState(null);
+    const [ticketsdata, setTickets] = useState([]);
+
+    useEffect(() => {
+        console.log("Fetching ticket data and event logs...");
+        const fetchData = async () => {
+            try {
+                const response = await fetch(`${API_URL}/tickets`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+                    },
+                });
+                const data = await response.json();
+                setTickets(data);
+            } catch (error) {
+                console.error("Error fetching ticket data:", error);
+            }
+        };
+        fetchData();
+
+    }, [ticketId]);
 
     const handleTicketClick = (id) => {
         setTicketId(id);
