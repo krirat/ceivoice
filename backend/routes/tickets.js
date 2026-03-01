@@ -9,7 +9,24 @@ dotenv.config();
 
 const router = express.Router();
 
+//Get all tickets
+router.get('/', verifyToken, async (req, res) => {
+    const userRole = req.user.role;
+    if (userRole === 0) {
+        return res.status(403).send({ message: 'Access denied' });
+    } else if (userRole === 1) {
+        query = 'SELECT * FROM tickets WHERE status != 0';
+    } else if (userRole === 2) {
+        query = 'SELECT * FROM tickets';
+    }
 
+    try {
+        const [rows] = await db.promise().query(query);
+        res.json(rows);
+    } catch (err) {
+        res.status(500).send({ message: 'Database error' });
+    }
+});
 
 // Get draft Ticket Info
 router.get('/:id', verifyToken, async (req, res) => {
@@ -24,8 +41,8 @@ router.get('/:id', verifyToken, async (req, res) => {
 
 // Update draft to active ticket / edit fields
 router.put('/:id', verifyToken, async (req, res) => {
-    const { title, summary, solution,due_date, assignee, status } = req.body; // 'status' will be 1 (Active)
-    
+    const { title, summary, solution, due_date, assignee, status } = req.body; // 'status' will be 1 (Active)
+
     try {
         await db.promise().query(
             'UPDATE tickets SET title=?, summary=?, solution=?, due_date=?, assignee=?, status=?, last_updated=NOW() WHERE id=?',
@@ -39,8 +56,8 @@ router.put('/:id', verifyToken, async (req, res) => {
 });
 
 // set status of Tickets
-router.patch('/:id', verifyToken, async (req,res) => {
-    const {status} = req.body;
+router.patch('/:id', verifyToken, async (req, res) => {
+    const { status } = req.body;
 
     try {
         await db.promise().query(
@@ -51,22 +68,22 @@ router.patch('/:id', verifyToken, async (req,res) => {
             success: true,
             message: "Status updated successfully",
             ticket_id: req.params.id,
-            updated_status : status
+            updated_status: status
         })
     } catch (err) {
         console.error(err)
-        res.status(500).send({message: 'update failed'})
+        res.status(500).send({ message: 'update failed' })
     }
 });
 
 // Merge Tickets
 router.post('/merge', verifyToken, async (req, res) => {
-    const { ticketIDs } = req.body; 
+    const { ticketIDs } = req.body;
 
     if (!Array.isArray(ticketIDs) || ticketIDs.length < 2) {
-        return res.status(400).send({ 
-            success: false, 
-            message: 'Please provide an array of at least two ticket IDs to merge.' 
+        return res.status(400).send({
+            success: false,
+            message: 'Please provide an array of at least two ticket IDs to merge.'
         });
     }
 
@@ -75,7 +92,7 @@ router.post('/merge', verifyToken, async (req, res) => {
 
         const [insertResult] = await db.promise().query('INSERT INTO ticket_group () VALUES ()');
         const groupId = insertResult.insertId;
-        
+
         const [updateResults] = await db.promise().query(
             'UPDATE tickets SET group_id = ? WHERE id IN (?)',
             [groupId, ticketIDs]
@@ -86,7 +103,7 @@ router.post('/merge', verifyToken, async (req, res) => {
         }
 
         await db.promise().commit();
-        
+
         res.status(200).send({
             success: true,
             message: `${updateResults.affectedRows} tickets successfully merged into group ${groupId}.`,
@@ -97,7 +114,7 @@ router.post('/merge', verifyToken, async (req, res) => {
     } catch (err) {
         await db.promise().rollback();
         console.error('Merge transaction failed:', err);
-        
+
         if (err.message === 'No valid tickets found to update.') {
             res.status(404).send({ success: false, message: err.message });
         } else {
@@ -128,32 +145,32 @@ router.post('/:id/comments', verifyToken, async (req, res) => {
     const userRole = req.user.role;
 
     if (!content) {
-        return res.status(400).send({ 
-            success: false, 
-            message: 'Comment content is required.' 
+        return res.status(400).send({
+            success: false,
+            message: 'Comment content is required.'
         });
     }
     if (userRole === 0 && visibility === 'internal') {
-        return res.status(403).send({ 
-            success: false, 
-            message: 'You do not have permission to add internal comments.' 
+        return res.status(403).send({
+            success: false,
+            message: 'You do not have permission to add internal comments.'
         });
     }
     try {
         if (visibility === 'internal' && userRole !== 2) {
             const [ticket] = await db.promise().query(
-                'SELECT assignee FROM tickets WHERE id = ?', 
+                'SELECT assignee FROM tickets WHERE id = ?',
                 [ticketId]
             );
-            
+
             if (ticket.length === 0) {
                 return res.status(404).send({ success: false, message: 'Ticket not found.' });
             }
 
             if (ticket[0].assignee !== author_id) {
-                return res.status(403).send({ 
-                    success: false, 
-                    message: 'Only the ticket assignee or admins can add internal comments.' 
+                return res.status(403).send({
+                    success: false,
+                    message: 'Only the ticket assignee or admins can add internal comments.'
                 });
             }
         }
@@ -178,7 +195,7 @@ router.post('/:id/comments', verifyToken, async (req, res) => {
 })
 
 // GET COMMENTS
-router.get('/:id/comments', verifyToken, async (req,res) => {
+router.get('/:id/comments', verifyToken, async (req, res) => {
     const ticketId = req.params.id;
     const userId = req.user.id;
     const userRole = req.user.role;
@@ -222,26 +239,26 @@ router.delete('/:id/comments/:commentId', verifyToken, async (req, res) => {
     const commentId = req.params.commentId;
     const userId = req.user.id;
     const userRole = req.user.role;
-    try { 
+    try {
         const [commentRows] = await db.promise().query(
             'SELECT created_by FROM comments WHERE id = ? AND ticket_id = ?',
-            [commentId,ticketId]
+            [commentId, ticketId]
         );
         if (commentRows.length === 0) {
-            return res.status(404).send({success : false, message : "Comment not found"});
+            return res.status(404).send({ success: false, message: "Comment not found" });
         }
         const author_id = commentRows[0].author_id;
         if (userRole != 2 && author_id != userId) {
-            return res.status(403).send({ 
-                success: false, 
-                message: 'You do not have permission to delete this comment.' 
+            return res.status(403).send({
+                success: false,
+                message: 'You do not have permission to delete this comment.'
             });
         }
         await db.promise().query(
             'DELETE FROM comments WHERE id = ?',
             [commentId]
         );
-        res.status(200).send({ success: true, message: "Comment deleted"});
+        res.status(200).send({ success: true, message: "Comment deleted" });
     } catch (err) {
         console.error('Failed to delete comment:', err);
         res.status(500).send({ success: false, message: 'Database error while deleting comment' });
