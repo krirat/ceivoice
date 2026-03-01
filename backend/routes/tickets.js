@@ -12,6 +12,7 @@ const router = express.Router();
 //Get all tickets
 router.get('/', verifyToken, async (req, res) => {
     const userRole = req.user.role;
+    let query = '';
     if (userRole === 0) {
         return res.status(403).send({ message: 'Access denied' });
     } else if (userRole === 1) {
