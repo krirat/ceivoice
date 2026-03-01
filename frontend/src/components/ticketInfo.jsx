@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import CommentSection from "./commentSection";
+import StatusTag from "./ui/statusTag";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -43,7 +44,7 @@ function TicketInfo({ closeTicket, ticketId }) {
                 <>
                     <h1 className="text-3xl font-bold mb-6">{ticketData?.title || "Untitled Ticket"}</h1>
                     <div className="my-4 flex justify-between w-full">
-                        <p className="px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900">Status: {statuses[ticketData?.status] || "Unknown Status"}</p> {/*TODO: Make status dropdown*/}
+                        <StatusTag status={statuses[ticketData?.status] || "Unknown Status"} /> {/*TODO: Make status dropdown*/}
                         <div>
                             <span>Assigned to:</span>
                             <select> {ticketData?.assignee || "Unassigned"}</select> {/*TODO: Make assignee dropdown*/}
