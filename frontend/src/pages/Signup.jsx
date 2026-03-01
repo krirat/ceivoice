@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const CEI_LOGO_URL = "https://cei.kmitl.ac.th/wp-content/uploads/2024/09/cropped-ceip-fav-1.png";
 
-const API_URL = import.meta.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 const SITE_KEY = import.meta.VITE_API_URL;
 
 function Signup() {
@@ -42,7 +42,7 @@ function Signup() {
 
             if (response.ok && data.success) {
                 navigate('/login', { state: { message: "Account created successfully! Please log in." } });
-                
+
             } else {
                 setError(data.message || 'Signup failed.');
             }
@@ -101,7 +101,7 @@ function Signup() {
                 </form>
                 {/* TODO: Redirect to authSuccess.jsx after logging in with google */}
                 <a
-                    href="http://localhost:5001/api/auth/google"
+                    href={`${API_URL}/auth/google`}
                     className="w-full mt-5 flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 p-4 rounded-2xl font-bold hover:bg-gray-50 transition"
                 >
                     {/* Simple Google SVG Icon */}
