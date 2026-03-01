@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import CommentSection from "./commentSection";
 
 const API_URL = import.meta.env.VITE_API_URL;
+
 
 const eventLogs = [
     { id: 1, action: 'Created Ticket #123', timestamp: '2024-10-01 10:00' },
@@ -66,6 +68,7 @@ function TicketInfo({ closeTicket, ticketId }) {
                             ))}
                         </ul>
                     </div>
+                    <CommentSection postId={ticketId} />
                 </>
             )}
             <button className="bg-red-400 hover:bg-red-500 p-2 mt-2 border rounded-md" onClick={closeTicket}>Close Ticket</button>
