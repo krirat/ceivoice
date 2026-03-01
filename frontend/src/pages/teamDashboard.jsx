@@ -54,7 +54,7 @@ function CustomerServiceDashboard() {
 
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [ticketId, setTicketId] = useState(null);
-    const [ticketsdata, setTickets] = useState([]);
+    const [tickets, setTickets] = useState([]);
 
     useEffect(() => {
         console.log("Fetching ticket data and event logs...");
@@ -134,7 +134,7 @@ function CustomerServiceDashboard() {
                                 <td className="border border-l-0 border-b-0 border-white p-2">{ticket.title}</td>
                                 <td className="border border-b-0 border-white p-2">{ticket.status}</td>
                                 <td className="border border-b-0 border-white p-2">{ticket.assignee}</td>
-                                <td className="border border-r-0 border-b-0 border-white p-2">{ticket.dueDate}</td>
+                                <td className="border border-r-0 border-b-0 border-white p-2">{ticket.due_date}</td>
                             </tr>
                         ))}
                     </tbody>
