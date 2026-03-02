@@ -3,6 +3,7 @@ import { verifyToken } from '../middleware/auth.js';
 import express from 'express';
 import dotenv from 'dotenv';
 import { success } from 'zod';
+import { sendEmail } from '../services/emailService.js';
 
 
 dotenv.config();
@@ -27,10 +28,34 @@ router.put('/:id', verifyToken, async (req, res) => {
     const { title, summary, solution,due_date, assignee, status } = req.body; // 'status' will be 1 (Active)
     
     try {
+        const [oldRows] = await db.promise().query(
+            `SELECT tickets.status, users.email 
+             FROM tickets 
+             JOIN users ON tickets.created_by = users.id
+             WHERE tickets.id = ?`,
+             [req.params.id]   
+        );
+
+        if (oldRows.length === 0) {
+            return res.status(404).send({ message: "Ticket Not Found"});
+        }
+
+        const oldStatus = oldRows[0].status;
+        const userEmail = oldRows[0].email;
+
         await db.promise().query(
             'UPDATE tickets SET title=?, summary=?, solution=?, due_date=?, assignee=?, status=?, last_updated=NOW() WHERE id=?',
             [title, summary, solution, due_date, assignee, status, req.params.id]
         );
+
+        if (oldStatus === 0 && status === 1) {
+            await sendEmail(
+                userEmail,
+                "Your Ticket Has Been Published.",
+                `Your ticket #${req.params.id} is now active and being processed.`
+            );
+        }
+
         res.json({ success: true, message: "Ticket updated successfully" });
     } catch (err) {
         console.error(err)

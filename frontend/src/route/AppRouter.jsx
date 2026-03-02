@@ -7,7 +7,7 @@ import Login from "../pages/Login";
 import Signup from "../pages/Signup";
 import AuthSuccess from "@/authSuccess";
 import CustomerServiceDashboard from "../pages/teamDashboard";
-import { CardDemo } from "../pages/TicketSubmit";
+import TicketSubmit from "../pages/TicketSubmit";
 import ProtectedRoute from "../hooks/privateRoutes";
 
 const AppRouter = () => {
@@ -17,7 +17,7 @@ const AppRouter = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/auth/success" element={<AuthSuccess />} />
-            <Route path="/ticket-submit" element={<CardDemo />} />
+            <Route path="/ticket-submit" element={<TicketSubmit />} />
             <Route element={<ProtectedRoute />}>
 
                 <Route path="/admin" element={<AdminLayout />}>
@@ -26,7 +26,7 @@ const AppRouter = () => {
                     <Route path="assignee" element={<Adminassignee />} />
                 </Route>
                 <Route path="/cs-dashboard" element={<CustomerServiceDashboard />} />
-                <Route path="/customer-dashboard" element={<CardDemo />} />
+                <Route path="/customer-dashboard" element={<TicketSubmit />} />
             </Route>
         </Routes>
     );

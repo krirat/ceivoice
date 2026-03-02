@@ -44,8 +44,8 @@ app.listen(process.env.SERVER_PORT, () => {
     console.log(`Server listening at http://localhost:${process.env.SERVER_PORT}`);
 });
 
-sendEmail(
-    "apichaporn253@gmail.com",
-    "Test Email jaaa",
-    "If i got this, it works"
-);
+// sendEmail(
+//     "soponwit2549@gmail.com",
+//     "Test Email jaaa",
+//     "ไออ้วนนนนนนนนนน"
+// );
