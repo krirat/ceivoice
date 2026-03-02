@@ -102,10 +102,14 @@ export default function Adminassignee() {
                     }
                     className="border rounded p-1"
                   >
-                    <option value="IT">IT</option>
-                    <option value="HR">HR</option>
-                    <option value="Finance">Finance</option>
-                    <option value="etc">etc</option>
+                    <option value="IT">Technical Support</option>
+                    <option value="HR">Billing</option>
+                    <option value="Finance">HR</option>
+                    <option value="etc">Facilities</option>
+                    <option value="etc">General Inquiry</option>
+                    <option value="etc">Access Control</option>
+                    <option value="etc">Hardwar</option>
+                    <option value="etc">Academics</option>
                   </select>
                 </td>
               </tr>
