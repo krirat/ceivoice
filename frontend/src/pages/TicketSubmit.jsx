@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
-export function CardDemo() {
+export default function TicketSubmit() {
   return (
     <div className="flex h-screen bg-black/20 items-center justify-center">
     <Card className="w-full max-w-sm">

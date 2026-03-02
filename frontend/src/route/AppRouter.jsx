@@ -7,7 +7,8 @@ import Login from "../pages/Login";
 import Signup from "../pages/Signup";
 import AuthSuccess from "@/authSuccess";
 import CustomerServiceDashboard from "../pages/teamDashboard";
-import { CardDemo } from "../pages/TicketSubmit";
+import CustomerDashboard from "../pages/CustomerDashboard";
+import TicketSubmit from "../pages/TicketSubmit";
 import ProtectedRoute from "../hooks/privateRoutes";
 
 const AppRouter = () => {
@@ -18,7 +19,7 @@ const AppRouter = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/auth/success" element={<AuthSuccess />} />
-            <Route path="/ticket-submit" element={<CardDemo />} />
+            <Route path="/ticket-submit" element={<TicketSubmit />} />
 
             {/* Login (ProtectedRoute) */}
             {/* <Route element={<ProtectedRoute />}> */}
@@ -31,7 +32,7 @@ const AppRouter = () => {
                 
                 {/* Dashboard */}
                 <Route path="/cs-dashboard" element={<CustomerServiceDashboard />} />
-                <Route path="/customer-dashboard" element={<CardDemo />} />
+                <Route path="/customer-dashboard" element={<CustomerDashboard />} />
             {/* </Route> */}
         </Routes>
     );
