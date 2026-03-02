@@ -1,207 +1,371 @@
-import DefaultSidebar from "./AdminSidebar";
-import React, { useEffect, useState } from "react";
-import { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import Modal from "react-modal";
 import AdminTicketTable from "./AdminTicketTable";
+import TicketInfo from "../ticketInfo";
 import { Ticket, AlertCircle, UserX, Clock } from "lucide-react";
 
-const initialtickets = [
-  {
-    id: 1,
-    title: "Login page broken",
-    status: "open",
-    category: "Bug",
-    assignee: "John Doe",
-    due_date: "2026-02-28",
-  },
-  {
-    id: 2,
-    title: "Add dark mode",
-    status: "in_progress",
-    category: "Feature Request",
-    assignee: "Jane Smith",
-    due_date: "2026-03-10",
-  },
-  {
-    id: 3,
-    title: "Fix payment gateway",
-    status: "resolved",
-    category: "Technical Issue",
-    assignee: "Unassigned",
-    due_date: "2026-02-20",
-  },
-  {
-    id: 4,
-    title: "Reset password not working",
-    status: "closed",
-    category: "Bug",
-    assignee: "",
-    due_date: "2026-02-15",
-  },
-  {
-    id: 5,
-    title: "Upgrade database",
-    status: "open",
-    category: "Maintenance",
-    assignee: "Alex Johnson",
-    due_date: "2026-03-01",
-  },
-  {
-    id: 6,
-    title: "Improve dashboard UI",
-    status: "in_progress",
-    category: "UI/UX",
-    assignee: "Emily Brown",
-    due_date: "2026-02-18",
-  },
-  {
-    id: 7,
-    title: "Server downtime issue",
-    status: "open",
-    category: "Infrastructure",
-    assignee: "Unassigned",
-    due_date: "2026-02-10",
-  },
-];
+const API_URL = import.meta.env.VITE_API_URL;
+
+Modal.setAppElement("#root");
 
 export default function AdminTicket() {
-  const tickets = initialtickets;
-  const sum_ticket_info = useMemo(() => {
-    const summary = {
-      total_tickets: tickets.length,
+  /* =======================
+     STATE
+  ======================= */
+  const [tickets, setTickets] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedIds, setSelectedIds] = useState([]);
 
-      status_summary: {
-        open: 0,
-        in_progress: 0,
-        resolved: 0,
-        closed: 0,
-      },
+  const [ticketId, setTicketId] = useState(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-      category_summary: {},
+  const [isMergeOpen, setIsMergeOpen] = useState(false);
+  const [mergeTitle, setMergeTitle] = useState("");
 
-      unassigned_tickets: 0,
-      overdue_tickets: 0,
+  const [editingTicket, setEditingTicket] = useState(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
+  /* =======================
+     FETCH TICKETS
+  ======================= */
+  useEffect(() => {
+    const fetchTickets = async () => {
+      try {
+        const res = await fetch(`${API_URL}/tickets`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+          },
+        });
+        const data = await res.json();
+        setTickets(data);
+      } catch (err) {
+        console.error("Fetch tickets error:", err);
+      }
+    };
+
+    fetchTickets();
+  }, []);
+
+  /* =======================
+     KPI SUMMARY
+  ======================= */
+  const summary = useMemo(() => {
+    const result = {
+      total: tickets.length,
+      open: 0,
+      in_progress: 0,
+      resolved: 0,
+      closed: 0,
+      unassigned: 0,
+      overdue: 0,
     };
 
     const today = new Date();
 
-    tickets.forEach((ticket) => {
-      // Status count
-      if (summary.status_summary[ticket.status] !== undefined) {
-        summary.status_summary[ticket.status]++;
+    tickets.forEach((t) => {
+      if (result[t.status] !== undefined) {
+        result[t.status]++;
       }
 
-      // Category count
-      if (!summary.category_summary[ticket.category]) {
-        summary.category_summary[ticket.category] = 0;
-      }
-      summary.category_summary[ticket.category]++;
-
-      // Unassigned
-      if (!ticket.assignee || ticket.assignee === "Unassigned") {
-        summary.unassigned_tickets++;
+      if (!t.assignee || t.assignee === "Unassigned") {
+        result.unassigned++;
       }
 
-      // Overdue
-      if (ticket.due_date && new Date(ticket.due_date) < today) {
-        summary.overdue_tickets++;
+      if (t.due_date && new Date(t.due_date) < today) {
+        result.overdue++;
       }
     });
 
-    return summary;
+    return result;
   }, [tickets]);
 
+  /* =======================
+     FILTER
+  ======================= */
+  const filteredTickets = useMemo(() => {
+    return tickets.filter((t) =>
+      [t.title, t.status, t.category, t.assignee, t.due_date]
+        .join(" ")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()),
+    );
+  }, [tickets, searchTerm]);
+
+  /* =======================
+     HANDLERS
+  ======================= */
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
+
+  const handleMerge = () => {
+    const toMerge = tickets.filter((t) => selectedIds.includes(t.id));
+    if (toMerge.length < 2) return;
+
+    const newTicket = {
+      id: Date.now(),
+      title: mergeTitle,
+      status: "open",
+      category: toMerge[0].category,
+      assignee: toMerge[0].assignee,
+      due_date: toMerge[0].due_date,
+    };
+
+    setTickets([
+      ...tickets.filter((t) => !selectedIds.includes(t.id)),
+      newTicket,
+    ]);
+
+    setSelectedIds([]);
+    setMergeTitle("");
+    setIsMergeOpen(false);
+  };
+
+  /* =======================
+     RENDER
+  ======================= */
   return (
-    <div className="flex flex-col items-center">
-      <div>
-        <h1 className="text-2xl font-bold mb-4">Ticket Info.</h1>
+    <div className="flex flex-col items-center p-6">
+      {/* ===== KPI ===== */}
+      <h1 className="text-2xl font-bold mb-6">Ticket Info</h1>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: "20px",
-            width: "100%",
-          }}
+      <div className="grid grid-cols-4 gap-5 w-full mb-8">
+        <KpiCard
+          title="Total Tickets"
+          value={summary.total}
+          icon={Ticket}
+          color="#6366f1"
+        />
+        <KpiCard
+          title="Open Tickets"
+          value={summary.open}
+          icon={AlertCircle}
+          color="#f59e0b"
+        />
+        <KpiCard
+          title="Unassigned"
+          value={summary.unassigned}
+          icon={UserX}
+          color="#ef4444"
+        />
+        <KpiCard
+          title="Overdue"
+          value={summary.overdue}
+          icon={Clock}
+          color="#22c55e"
+        />
+      </div>
+
+      {/* ===== SEARCH + MERGE ===== */}
+      <div className="flex gap-3 w-full mb-4">
+        <button
+          disabled={selectedIds.length < 2}
+          onClick={() => setIsMergeOpen(true)}
+          className={`px-4 py-2 rounded-lg text-white
+            ${
+              selectedIds.length < 2
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
         >
-          <KpiCard
-            title="Total Tickets"
-            value={sum_ticket_info.total_tickets}
-            color="#6366f1"
-            icon={Ticket}
-          />
+          Merge
+        </button>
 
-          <KpiCard
-            title="Open Tickets"
-            value={sum_ticket_info.status_summary.open}
-            color="#f59e0b"
-            icon={AlertCircle}
-          />
+        <input
+          className="p-2 border rounded w-full max-w-sm"
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
 
-          <KpiCard
-            title="Unassigned"
-            value={sum_ticket_info.unassigned_tickets}
-            color="#ef4444"
-            icon={UserX}
-          />
+      {/* ===== TABLE ===== */}
+      <AdminTicketTable
+        tickets={filteredTickets}
+        selectedIds={selectedIds}
+        onToggleSelect={toggleSelect}
+        onRowClick={(id) => {
+          setTicketId(id);
+          setIsDetailOpen(true);
+        }}
+        onEdit={(ticket) => {
+          setEditingTicket(ticket);
+          setIsEditOpen(true);
+        }}
+        onSubmit={(id) => {
+          console.log("Submit ticket:", id);
+        }}
+      />
 
-          <KpiCard
-            title="Overdue"
-            value={sum_ticket_info.overdue_tickets}
-            color="#22c55e"
-            icon={Clock}
-          />
+      {isEditOpen && editingTicket && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl w-[420px] shadow-lg">
+            <h2 className="text-lg font-bold mb-4">Edit Ticket</h2>
+
+            {/* Title */}
+            <label className="block text-sm font-medium mb-1">Title</label>
+            <input
+              className="w-full border rounded px-3 py-2 mb-3"
+              value={editingTicket.title}
+              onChange={(e) =>
+                setEditingTicket({ ...editingTicket, title: e.target.value })
+              }
+            />
+
+            {/* Status */}
+            <label className="block text-sm font-medium mb-1">Status</label>
+            <select
+              className="w-full border rounded px-3 py-2 mb-3"
+              value={editingTicket.status}
+              onChange={(e) =>
+                setEditingTicket({ ...editingTicket, status: e.target.value })
+              }
+            >
+              <option value="open">open</option>
+              <option value="in_progress">in_progress</option>
+              <option value="resolved">resolved</option>
+              <option value="closed">closed</option>
+            </select>
+
+            {/* Category */}
+            <label className="block text-sm font-medium mb-1">Category</label>
+            <input
+              className="w-full border rounded px-3 py-2 mb-3"
+              value={editingTicket.category}
+              onChange={(e) =>
+                setEditingTicket({ ...editingTicket, category: e.target.value })
+              }
+            />
+
+            {/* Assignee */}
+            <label className="block text-sm font-medium mb-1">Assignee</label>
+            <input
+              className="w-full border rounded px-3 py-2 mb-3"
+              value={editingTicket.assignee}
+              onChange={(e) =>
+                setEditingTicket({ ...editingTicket, assignee: e.target.value })
+              }
+            />
+
+            {/* Due Date */}
+            <label className="block text-sm font-medium mb-1">Due Date</label>
+            <input
+              type="date"
+              className="w-full border rounded px-3 py-2 mb-4"
+              value={editingTicket.due_date}
+              onChange={(e) =>
+                setEditingTicket({ ...editingTicket, due_date: e.target.value })
+              }
+            />
+
+            {/* Actions */}
+            <div className="flex justify-end gap-2">
+              <button
+                className="px-4 py-2 bg-gray-300 rounded"
+                onClick={() => {
+                  setIsEditOpen(false);
+                  setEditingTicket(null);
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                className="px-4 py-2 bg-green-600 text-white rounded"
+                onClick={() => {
+                  setTickets((prev) =>
+                    prev.map((t) =>
+                      t.id === editingTicket.id ? editingTicket : t,
+                    ),
+                  );
+                  setIsEditOpen(false);
+                  setEditingTicket(null);
+                }}
+              >
+                Save
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="mt-8">
-        <AdminTicketTable />
-      </div>
+      )}
+
+      {/* ===== TICKET DETAIL MODAL ===== */}
+      <Modal
+        isOpen={isDetailOpen}
+        onRequestClose={() => setIsDetailOpen(false)}
+        className="bg-white rounded-xl p-4 w-1/2 mx-auto mt-20 border"
+        overlayClassName="fixed inset-0 bg-black/30"
+      >
+        <TicketInfo
+          ticketId={ticketId}
+          closeTicket={() => setIsDetailOpen(false)}
+        />
+      </Modal>
+
+      {/* ===== MERGE MODAL ===== */}
+      {isMergeOpen && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl w-[420px]">
+            <h2 className="font-bold text-lg mb-4">Merge Tickets</h2>
+
+            <p className="text-sm text-gray-600 mb-3">
+              Merging <b>{selectedIds.length}</b> tickets
+            </p>
+
+            <input
+              className="w-full border rounded px-3 py-2 mb-4"
+              placeholder="New ticket title"
+              value={mergeTitle}
+              onChange={(e) => setMergeTitle(e.target.value)}
+            />
+
+            <div className="flex justify-end gap-2">
+              <button
+                className="px-4 py-2 bg-gray-300 rounded"
+                onClick={() => {
+                  setIsMergeOpen(false);
+                  setMergeTitle("");
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                disabled={!mergeTitle.trim()}
+                onClick={handleMerge}
+                className={`px-4 py-2 rounded text-white
+                  ${
+                    mergeTitle.trim()
+                      ? "bg-blue-600 hover:bg-blue-700"
+                      : "bg-gray-400 cursor-not-allowed"
+                  }`}
+              >
+                Merge
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function KpiCard({ title, value, color, icon: Icon }) {
+/* =======================
+   KPI CARD
+======================= */
+function KpiCard({ title, value, icon: Icon, color }) {
   return (
     <div
-      style={{
-        background: "#ffffff",
-        borderRadius: "14px",
-        padding: "20px",
-        minWidth: "220px",
-        boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
-        borderLeft: `6px solid ${color}`,
-        transition: "transform 0.2s ease, box-shadow 0.2s ease",
-        cursor: "default",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-4px)";
-        e.currentTarget.style.boxShadow = "0 12px 30px rgba(0,0,0,0.12)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.08)";
-      }}
+      className="bg-white rounded-xl p-5 shadow-md border-l-4"
+      style={{ borderColor: color }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "10px",
-        }}
-      >
-        <p style={{ fontSize: "14px", color: "#6b7280" }}>{title}</p>
+      <div className="flex justify-between items-center mb-2">
+        <p className="text-sm text-gray-500">{title}</p>
         <Icon size={22} color={color} />
       </div>
-
-      <h2
-        style={{
-          fontSize: "28px",
-          fontWeight: 700,
-          color: "#111827",
-        }}
-      >
-        {value}
-      </h2>
+      <h2 className="text-2xl font-bold">{value}</h2>
     </div>
   );
 }

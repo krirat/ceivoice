@@ -10,6 +10,8 @@ import aiRoutes from './routes/ai.js';
 import ticketRoutes from './routes/tickets.js';
 import dashboardRoutes from './routes/dashboard.js';
 
+import {sendEmail} from "./services/emailService.js";
+
 dotenv.config();
 const app = express();
 
@@ -41,3 +43,9 @@ app.get('/api/health', (req, res) => {
 app.listen(process.env.SERVER_PORT, () => {
     console.log(`Server listening at http://localhost:${process.env.SERVER_PORT}`);
 });
+
+// sendEmail(
+//     "soponwit2549@gmail.com",
+//     "Test Email jaaa",
+//     "ไออ้วนนนนนนนนนน"
+// );

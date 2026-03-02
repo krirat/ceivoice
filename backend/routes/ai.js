@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import db from '../config/db.js';
 import { verifyToken } from '../middleware/auth.js';
+import { sendEmail } from '../services/emailService.js';
 
 const router = express.Router();
 
@@ -28,11 +29,17 @@ const ticketSchema = z.object({
     urgency_level: z.enum(["Low", "Medium", "High", "Critical"]).describe("Urgency based on impact and deadlines."),
 });
 
-router.post('/ollama', verifyToken, async (req, res) => {
+router.post('/ollama', verifyToken, async (req, res) => {        
     const email = req.user.email; //from decoded token
     const {problem} = req.body;
+    const user_id = req.user.id;
 
-    if (!email && !problem) {
+    // const { problem } = req.body;
+    // const email = "apichaporn253@gmail.com";
+    // const user_id = 2;
+
+
+    if (!email || !problem) {
         return res.status(400).send({ message: 'email and problem are required.' });
     }
 
@@ -67,7 +74,7 @@ router.post('/ollama', verifyToken, async (req, res) => {
         `;
 
         const response = await ollama.chat({
-            model: 'gemma3:12b-it-qat',
+            model: 'llama3.2:latest',
             messages: [
                 { role: 'user', content: promptText }
             ],
@@ -85,7 +92,7 @@ router.post('/ollama', verifyToken, async (req, res) => {
         const assignedId = assigneeMap[assignedName] || null;
 
         const insertDraftSQL = 'INSERT INTO tickets (title, summary, category,  solution, assignee, created_by, last_updated, status) VALUES (?,?,?,?,?,?,NOW(),0)'
-        const user_id = req.user.id;
+        // const user_id = req.user.id;  
 
         const [result] = await db.promise().query(insertDraftSQL, [
             draftTicket.suggested_title,
@@ -95,6 +102,12 @@ router.post('/ollama', verifyToken, async (req, res) => {
             assignedId,
             user_id
         ]);
+
+        await sendEmail(
+            email,
+            "Draft Ticket Created",
+            `Your draft ticket (#${result.insertId}) has been successfully created in CEiVoice.`
+        );
 
         res.status(200).send({
             success : true,
