@@ -20,6 +20,7 @@ const AppRouter = () => {
             <Route path="/signup" element={<Signup />} />
             <Route path="/auth/success" element={<AuthSuccess />} />
             <Route path="/ticket-submit" element={<TicketSubmit />} />
+            <Route element={<ProtectedRoute />}>
 
             {/* Login (ProtectedRoute) */}
             {/* <Route element={<ProtectedRoute />}> */}

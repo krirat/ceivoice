@@ -1,7 +1,8 @@
 function StatusTag({ status }) {
     const statusColors = {
         "Draft": "bg-gray-300 text-gray-800",
-        "Open": "bg-green-300 text-green-800",
+        "New": "bg-green-300 text-green-800",
+        "Assigned": "bg-blue-300 text-blue-800",
         "In Progress": "bg-yellow-300 text-yellow-800",
         "Resolved": "bg-blue-300 text-blue-800",
         "Closed": "bg-red-300 text-red-800"
