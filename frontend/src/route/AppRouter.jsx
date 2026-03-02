@@ -21,7 +21,7 @@ const AppRouter = () => {
             <Route path="/ticket-submit" element={<CardDemo />} />
 
             {/* Login (ProtectedRoute) */}
-            <Route element={<ProtectedRoute />}>
+            {/* <Route element={<ProtectedRoute />}> */}
                 {/* หน้า Admin ทั้งหมด */}
                 <Route path="/admin" element={<AdminLayout />}>
                     <Route index element={<AdminDashboard />} />
@@ -32,7 +32,7 @@ const AppRouter = () => {
                 {/* Dashboard */}
                 <Route path="/cs-dashboard" element={<CustomerServiceDashboard />} />
                 <Route path="/customer-dashboard" element={<CardDemo />} />
-            </Route>
+            {/* </Route> */}
         </Routes>
     );
 };
