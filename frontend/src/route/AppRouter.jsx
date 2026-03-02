@@ -34,7 +34,7 @@ const AppRouter = () => {
                 {/* Dashboard */}
                 <Route path="/cs-dashboard" element={<CustomerServiceDashboard />} />
                 <Route path="/customer-dashboard" element={<CustomerDashboard />} />
-            {/* </Route> */}
+            </Route>
         </Routes>
     );
 };
