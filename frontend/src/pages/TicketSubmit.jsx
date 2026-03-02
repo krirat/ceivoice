@@ -14,8 +14,32 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { useState } from "react";
 
 export default function TicketSubmit() {
+
+  const [problem, setProblem] = useState("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const res = await fetch("http://localhost:5001/api/ollama", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ problem }),
+    });
+
+    const data = await res.json();
+    console.log(data);
+
+    if (res.ok) {
+      alert("Draft ticket created!");
+    } else {
+      alert("Failed to create ticket");
+    }
+  };
+
   return (
     <div className="flex h-screen bg-black/20 items-center justify-center">
     <Card className="w-full max-w-sm">
