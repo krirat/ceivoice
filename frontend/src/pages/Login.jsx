@@ -51,7 +51,7 @@ function Login() {
 
             if (response.ok && data.success) {
                 const decoded = jwtDecode(data.token);
-                localStorage.setItem('auth_token', data.token);
+                localStorage.setItem('token', data.token);
                 console.log("Decoded JWT:", decoded);
 
 
