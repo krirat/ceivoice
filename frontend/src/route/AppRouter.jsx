@@ -15,7 +15,7 @@ const AppRouter = () => {
     return (
         <Routes>
             {/* normal page */}
-            <Route path="/" element={<Navigate to="/admin" />} />
+            <Route path="/" element={<Navigate to="/ticket-submit" />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/auth/success" element={<AuthSuccess />} />
@@ -26,7 +26,7 @@ const AppRouter = () => {
                     <Route path="tickets" element={<AdminTicket />} />
                     <Route path="assignee" element={<AdminAssignee />} />
                 </Route>
-                
+
                 {/* Dashboard */}
                 <Route path="/cs-dashboard" element={<CustomerServiceDashboard />} />
                 <Route path="/customer-dashboard" element={<CustomerDashboard />} />
