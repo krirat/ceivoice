@@ -85,7 +85,7 @@ function CustomerServiceDashboard() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <AdminTicketTable tickets={filteredTickets} onRowClick={handleTicketClick} onEdit={(ticket) => { setEditingTicket(ticket); setIsEditOpen(true); }} onSubmit={() => { }} showSubmit={false} />
+                <AdminTicketTable tickets={filteredTickets} onRowClick={handleTicketClick} onEdit={(ticket) => { setEditingTicket(ticket); setIsEditOpen(true); }} onSubmit={() => { }} showSubmit={false} showCheckbox={false} />
             </div>
         </>
     )
