@@ -22,7 +22,7 @@ export default function TicketSubmit() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("auth_token");
 
     const res = await fetch("http://localhost:5001/api/ollama", {
       method: "POST",
