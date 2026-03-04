@@ -16,20 +16,26 @@ export default function AdminTicketTable({
   onRowClick,
   onEdit,
   onSubmit,
-  showSubmit = true
+  showSubmit = true,
+  showCheckbox = true,
+  showEdit = true,
 }) {
   return (
     <div className="overflow-x-auto w-full">
       <table className="w-full border border-gray-300 rounded-xl overflow-hidden">
         <thead className="bg-gray-400 text-white">
           <tr>
-            <th className="p-2 text-left">✔</th>
+            {showCheckbox && (
+              <th className="p-2 text-left">✔</th>
+            )}
             <th className="p-2 text-left">Title</th>
             <th className="p-2 text-left">Status</th>
             <th className="p-2 text-left">Category</th>
             <th className="p-2 text-left">Assignee</th>
             <th className="p-2 text-left">Due Date</th>
-            <th className="p-2 text-left">Action</th>
+            {showEdit || showSubmit ? (
+              <th className="p-2 text-left">Action</th>
+            ) : null}
           </tr>
         </thead>
 
@@ -48,14 +54,15 @@ export default function AdminTicketTable({
                 onClick={() => onRowClick(item.id)}
               >
                 {/* Checkbox */}
-                <td className="p-3">
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.includes(item.id)}
-                    onClick={(e) => e.stopPropagation()}
-                    onChange={() => onToggleSelect(item.id)}
-                  />
-                </td>
+                {showCheckbox && (
+                  <td className="p-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(item.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={() => onToggleSelect(item.id)}
+                    />
+                  </td>)}
 
                 <td className="p-2">{item.title}</td>
                 <td className="p-2 capitalize">{statuses[item.status] || item.status}</td>
@@ -64,28 +71,32 @@ export default function AdminTicketTable({
                 <td className="p-2">{new Date(item.due_date).toLocaleString("en-GB") || "-"}</td>
 
                 {/* Action Buttons */}
-                <td className="p-2 flex gap-2">
-                  <button
-                    className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEdit(item);
-                    }}
-                  >
-                    Edit
-                  </button>
-                  {showSubmit && (
-                    <button
-                      className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onSubmit(item.id);
-                      }}
-                    >
-                      Submit
-                    </button>
-                  )}
-                </td>
+                {showEdit || showSubmit ? (
+                  <td className="p-2 flex gap-2">
+                    {showEdit && (
+                      <button
+                        className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit(item);
+                        }}>
+
+                        Edit
+                      </button>
+                    )}
+                    {showSubmit && (
+                      <button
+                        className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSubmit(item.id);
+                        }}
+                      >
+                        Submit
+                      </button>
+                    )}
+                  </td>
+                ) : null}
               </tr>
             ))
           )}
