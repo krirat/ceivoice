@@ -32,8 +32,20 @@ router.get('/', verifyToken, async (req, res) => {
 
 // Get draft Ticket Info
 router.get('/:id', verifyToken, async (req, res) => {
+
+    const query = `
+SELECT
+    tickets.*,
+    users_1.username AS creator_username,
+    users_2.username AS assignee_username
+FROM
+    tickets
+JOIN users AS users_1 ON tickets.created_by = users_1.id
+JOIN users AS users_2 ON tickets.assignee = users_2.id
+WHERE tickets.id = ?;`;
+
     try {
-        const [rows] = await db.promise().query('SELECT * FROM tickets WHERE id = ?', [req.params.id]);
+        const [rows] = await db.promise().query(query, [req.params.id]);
         if (rows.length === 0) return res.status(404).send({ message: 'Ticket not found' });
         res.json(rows[0]);
     } catch (err) {
@@ -51,11 +63,11 @@ router.put('/:id', verifyToken, async (req, res) => {
              FROM tickets 
              JOIN users ON tickets.created_by = users.id
              WHERE tickets.id = ?`,
-             [req.params.id]   
+            [req.params.id]
         );
 
         if (oldRows.length === 0) {
-            return res.status(404).send({ message: "Ticket Not Found"});
+            return res.status(404).send({ message: "Ticket Not Found" });
         }
 
         const oldStatus = oldRows[0].status;
@@ -95,7 +107,7 @@ router.put('/:id', verifyToken, async (req, res) => {
                 [assignee]
             );
 
-            if (assigneeRows.length > 0 ) {
+            if (assigneeRows.length > 0) {
                 const assigneeEmail = assigneeRows[0].email;
 
                 await sendEmail(
@@ -109,7 +121,7 @@ router.put('/:id', verifyToken, async (req, res) => {
                 );
             }
         }
-        
+
         res.json({ success: true, message: "Ticket updated successfully" });
     } catch (err) {
         console.error(err)
@@ -280,7 +292,7 @@ router.post('/:id/comments', verifyToken, async (req, res) => {
                 WHERE tickets.id = ?`,
                 [ticketId]
             );
-        
+
             if (ticketRows.length > 0) {
                 const creatorEmail = ticketRows[0].email;
 
@@ -294,15 +306,15 @@ router.post('/:id/comments', verifyToken, async (req, res) => {
                 `
                 );
             }
-        }    
+        }
 
-    res.status(201).send({
-        success: true,
-        message: 'Comment added successfully',
-        comment_id: insertResult.insertId,
-        ticket_id: ticketId,
-        visibility: visibility
-    });
+        res.status(201).send({
+            success: true,
+            message: 'Comment added successfully',
+            comment_id: insertResult.insertId,
+            ticket_id: ticketId,
+            visibility: visibility
+        });
 
     } catch (err) {
         console.error('Failed to add comment:', err);
