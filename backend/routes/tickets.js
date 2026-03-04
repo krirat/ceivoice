@@ -57,7 +57,7 @@ WHERE tickets.id = ?;`;
 
 // Update draft to active ticket / edit fields
 router.put('/:id', verifyToken, async (req, res) => {
-    const { title, summary, solution, due_date, assignee, status } = req.body; // 'status' will be 1 (Active)
+    const { title, summary, solution, due_date, assignee, status, category } = req.body; // 'status' will be 1 (Active)
 
     try {
         const [oldRows] = await db.promise().query(
@@ -76,24 +76,10 @@ router.put('/:id', verifyToken, async (req, res) => {
         const userEmail = oldRows[0].email;
 
         await db.promise().query(
-            'UPDATE tickets SET title=?, summary=?, solution=?, due_date=?, assignee=?, status=?, last_updated=NOW() WHERE id=?',
-            [title, summary, solution, due_date, assignee, status, req.params.id]
+            'UPDATE tickets SET title=?, summary=?, solution=?, due_date=?, assignee=?, status=?, category=?, last_updated=NOW() WHERE id=?',
+            [title, summary, solution, due_date, assignee, status, category, req.params.id]
         );
 
-        if (oldStatus === 0 && status === 1) {
-            await sendEmail(
-                userEmail,
-                "Your Ticket Has Been Published.",
-                `Your ticket #${req.params.id} is now active and being processed.`
-            );
-        }
-
-        await db.promise().query(
-            "UPDATE tickets SET title=?, smmary=?, solution=?, due_date=?, assignee=?, status=?, last_updated=NOW() WHERE id=?",
-            [title, summary, solution, due_date, assignee, status, req.params.id]
-        );
-
-        //notify creator when draft -> active
         if (oldStatus === 0 && status === 1) {
             await sendEmail(
                 userEmail,

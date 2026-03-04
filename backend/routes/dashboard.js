@@ -16,7 +16,7 @@ router.get('/admin/assignees', verifyToken, async (req, res) => {
     }
     try {
         const [assigneesRows] = await db.promise().query(
-            'SELECT id, username, email, role, department FROM users WHERE role = 1',
+            'SELECT id, username, email, role, department FROM users WHERE role != 2',
         );
         res.status(200).json(assigneesRows);
     } catch (err) {

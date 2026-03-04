@@ -5,9 +5,8 @@ const statuses = [
   "Draft",
   "New",
   "Assigned",
-  "In Progress",
+  "Solving",
   "Resolved",
-  "Closed"
 ];
 
 export default function AdminTicketTable({
