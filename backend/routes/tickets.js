@@ -396,4 +396,20 @@ router.delete('/:id/comments/:commentId', verifyToken, async (req, res) => {
     }
 });
 
-export default router
+router.get('/logs/:id', verifyToken, async (req, res) => {
+    const ticketId = req.params.id;
+    try {
+        const query = "SELECT ticket_events.*, users.username AS changed_by_username FROM ticket_events JOIN users ON ticket_events.changed_by = users.id WHERE ticket_events.ticket_id = ? ORDER BY ticket_events.changed_at DESC";
+        const [rows] = await db.promise().query(query, [ticketId]);
+        res.status(200).send({
+            success: true,
+            count: rows.length,
+            events: rows
+        });
+    } catch (err) {
+        console.error('Failed to fetch ticket events:', err);
+        res.status(500).send({ success: false, message: 'Database error while fetching ticket events' });
+    }
+});
+
+export default router;
