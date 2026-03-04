@@ -21,10 +21,6 @@ const AppRouter = () => {
             <Route path="/auth/success" element={<AuthSuccess />} />
             <Route path="/ticket-submit" element={<TicketSubmit />} />
             <Route element={<ProtectedRoute />}>
-
-            {/* Login (ProtectedRoute) */}
-            {/* <Route element={<ProtectedRoute />}> */}
-                {/* หน้า Admin ทั้งหมด */}
                 <Route path="/admin" element={<AdminLayout />}>
                     <Route index element={<AdminDashboard />} />
                     <Route path="tickets" element={<AdminTicket />} />

@@ -48,7 +48,7 @@ router.patch('/admin/users/:id/role', verifyToken, async (req, res) => {
     }
     const userId = req.params.id;
     const { role } = req.body;
-    if (![0, 1, 2].includes(role)) {
+    if (!['0', '1', '2'].includes(role)) {
         return res.status(400).send({ success: false, message: 'Invalid role value.' });
     }
     try {

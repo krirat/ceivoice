@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
 
+const API_URL = import.meta.env.VITE_API_URL
+
 export default function Adminassignee() {
-  const [users, setUsers] = useState(initialTickets);
+  const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
 useEffect(() => {
     const fetchusers = async () => {
       try {
-        const res = await fetch(`${API_URL}/users`, {
+        const res = await fetch(`${API_URL}/dashboard/admin/assignees`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+            'Content-Type': 'application/json'
           },
         });
         const data = await res.json();
@@ -22,14 +25,41 @@ useEffect(() => {
     fetchusers();
   }, []);
 
-  const handleRoleChange = (id, newRole) => {
+  const handleRoleChange = async (id, newRole) => {
+    try {
+      const res = await fetch(`${API_URL}/dashboard/admin/users/${id}/role`, {
+        method: "PATCH",
+        headers : {
+          'Authorization' : `Bearer ${localStorage.getItem('auth_token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ role : newRole })
+      })
+      const data = res.json()
+    } catch (err) {
+      console.log(err);
+    }
     const updatedTickets = users.map((user) =>
       user.id === id ? { ...user, role: newRole } : user,
     );
     setUsers(updatedTickets);
   };
 
-  const handleChangeDepartment = (id, newDepartment) => {
+  const handleChangeDepartment = async (id, newDepartment) => {
+    try {
+      const res = await fetch(`${API_URL}/dashboard/admin/users/${id}/department`, {
+        method: "PATCH",
+        headers : {
+          'Authorization' : `Bearer ${localStorage.getItem('auth_token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ department : newDepartment })
+      })
+      const data = res.json()
+    } catch (err) {
+      console.log(err);
+    }
+
     const updatedTickets = users.map((user) =>
       user.id === id ? { ...user, department: newDepartment } : user,
     );
@@ -77,8 +107,8 @@ useEffect(() => {
                     onChange={(e) => handleRoleChange(user.id, e.target.value)}
                     className="border rounded p-1"
                   >
-                    <option value="user">user</option>
-                    <option value="assignee">assignee</option>
+                    <option value='0'>user</option>
+                    <option value="1">assignee</option>
                   </select>
                 </td>
                 <td className="p-2">
@@ -89,14 +119,14 @@ useEffect(() => {
                     }
                     className="border rounded p-1"
                   >
-                    <option value="IT">Technical Support</option>
-                    <option value="HR">Billing</option>
-                    <option value="Finance">HR</option>
-                    <option value="etc">Facilities</option>
-                    <option value="etc">General Inquiry</option>
-                    <option value="etc">Access Control</option>
-                    <option value="etc">Hardwar</option>
-                    <option value="etc">Academics</option>
+                    <option value="Technical Support">Technical Support</option>
+                    <option value="Billing">Billing</option>
+                    <option value="HR">HR</option>
+                    <option value="Facilities">Facilities</option>
+                    <option value="General Inquiry">General Inquiry</option>
+                    <option value="Access Control">Access Control</option>
+                    <option value="Hardware">Hardware</option>
+                    <option value="Academics">Academics</option>
                   </select>
                 </td>
               </tr>
