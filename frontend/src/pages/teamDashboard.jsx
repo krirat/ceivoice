@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Modal from 'react-modal';
 import TicketInfo from '../components/ticketInfo';
 import AdminTicketTable from '@/components/Admin/AdminTicketTable';
+import EditTicket from '@/components/editTicket';
 import { FaTrash, FaCheck, FaSignOutAlt, FaPlus, FaClipboardList, FaCoffee, FaCalendarAlt } from 'react-icons/fa';
 
 const CEI_LOGO_URL = "https://cei.kmitl.ac.th/wp-content/uploads/2024/09/cropped-ceip-fav-1.png";
@@ -20,6 +21,9 @@ function CustomerServiceDashboard() {
     const [ticketId, setTicketId] = useState(null);
     const [tickets, setTickets] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const [editingTicket, setEditingTicket] = useState(null);
+    const [isEditOpen, setIsEditOpen] = useState(false);
+
 
     useEffect(() => {
         console.log("Fetching tickets...");
@@ -60,6 +64,9 @@ function CustomerServiceDashboard() {
             <Modal isOpen={modalIsOpen} overlayClassName='pb-8 fixed inset-0 overflow-scroll bg-[#FFFFFF80] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]' className="rounded-xl bg-white dark:bg-gray-700 p-4 w-1/2 min-w-[300px] mx-auto mt-20 border-2 border-gray-300">
                 <TicketInfo closeTicket={() => setModalIsOpen(false)} ticketId={ticketId} />
             </Modal>
+            {isEditOpen && (
+                <EditTicket editingTicket={editingTicket} setEditingTicket={setEditingTicket} setIsEditOpen={setIsEditOpen} setTickets={setTickets} />
+            )}
             <div className="my-20 flex text-center justify-around flex-row">
                 {performanceMetrics.map(metric => (
                     <div key={metric.id} className={`${metric.color} h-30 w-80 content-center rounded-3xl border`}>
@@ -69,15 +76,13 @@ function CustomerServiceDashboard() {
                 ))}
             </div>
             <h1 className="text-3xl font-bold my-4">Tickets:</h1>
-            <div className="flex justify-center max-w-[180px] p-2 rounded-full bg-white dark:bg-gray-700">
-            </div>
             <input
-                className="p-2 border rounded w-full max-w-sm"
+                className="p-2 mb-2 border rounded w-full max-w-sm"
                 placeholder="Search..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <AdminTicketTable tickets={filteredTickets} onRowClick={handleTicketClick} onEdit={() => { }} onSubmit={() => { }} />
+            <AdminTicketTable tickets={filteredTickets} onRowClick={handleTicketClick} onEdit={(ticket) => { setEditingTicket(ticket); setIsEditOpen(true); }} onSubmit={() => { }} />
         </div>
     )
 }
