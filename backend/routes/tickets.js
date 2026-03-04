@@ -347,8 +347,9 @@ router.get('/:id/comments', verifyToken, async (req, res) => {
             }
         }
         const query = `
-            SELECT id, content, created_by, visibility, created_at 
-            FROM comments 
+            SELECT id, content, created_by, visibility, created_at, users.username AS created_by_username 
+            FROM comments
+            JOIN users ON comments.created_by = users.id
             WHERE ticket_id = ? ${visiFilter}
             ORDER BY created_at ASC
         `;
