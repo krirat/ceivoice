@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -36,7 +37,8 @@ function CommentSection({ postId }) {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    setComments(prev => [...prev, { id: data.comment_id, content: newComment }]);
+                    const decodedToken = jwtDecode(localStorage.getItem('auth_token'));
+                    setComments(prev => [...prev, { id: data.comment_id, created_by_username: decodedToken.username, content: newComment }]);
                     setNewComment('');
                 }
             })
@@ -52,10 +54,11 @@ function CommentSection({ postId }) {
             <ul>
                 {comments.map(comment => (
                     <li key={comment.id}>
-                        <strong>{comment.created_by_username}</strong>: {comment.content}
+                        {comment.visibility == 'internal' && <i>(Internal)</i>} <strong> {comment.created_by_username}</strong>: {comment.content}
                     </li>
-                ))}
-            </ul>
+                ))
+                }
+            </ul >
             <input
                 type="text"
                 value={newComment}
@@ -63,7 +66,7 @@ function CommentSection({ postId }) {
                 placeholder="Add a comment"
             />
             <button onClick={handleAddComment}>Submit</button>
-        </div>
+        </div >
     );
 
 }

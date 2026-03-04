@@ -64,9 +64,8 @@ function TicketInfo({ closeTicket, ticketId }) {
                         <div className="my-3 flex justify-between w-full">
                             <p className="font-semibold">Event Logs:</p> <p className="text-sm">Last Updated: {Date(ticketData?.last_updated).toLocaleString() || "Never"}</p>
                         </div>
-
+                        <EventLogSection ticketId={ticketId} />
                     </div>
-                    <EventLogSection ticketId={ticketId} />
                     <CommentSection postId={ticketId} />
                 </>
             )}
