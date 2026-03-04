@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 
 export default function Adminassignee() {
-  const [users, setUsers] = useState(initialTickets);
+  const [users, setUsers] = useState();
   const [searchTerm, setSearchTerm] = useState("");
 
 useEffect(() => {
     const fetchusers = async () => {
       try {
-        const res = await fetch(`${API_URL}/users`, {
+        const res = await fetch(`${API_URL}/dashboard/admin/assignees`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
           },
