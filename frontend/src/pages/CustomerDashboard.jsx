@@ -1,9 +1,10 @@
-import { Ticket } from "lucide-react";
 import React, {useEffect, useState} from "react";
 import { useMemo } from "react";
 import AdminTicketTable from "../components/Admin/AdminTicketTable.jsx";
 import Modal from 'react-modal';
 import TicketInfo from '../components/ticketInfo';
+import { KpiCard } from "@/components/Admin/AdminTicket.jsx";
+import { Ticket, AlertCircle, UserX, Clock } from "lucide-react";
 const initialtickets = [
   {
     id: 1,
@@ -111,35 +112,71 @@ export default function CustomerDashboard() {
 
         return summary;
     }, [tickets]);
-
+      const summary = useMemo(() => {
+        const result = {
+          total: tickets.length,
+          open: 0,
+          in_progress: 0,
+          resolved: 0,
+          closed: 0,
+          unassigned: 0,
+          overdue: 0,
+        };
+    
+        const today = new Date();
+    
+        tickets.forEach((t) => {
+          if (result[t.status] !== undefined) {
+            result[t.status]++;
+          }
+    
+          if (!t.assignee || t.assignee === "Unassigned") {
+            result.unassigned++;
+          }
+    
+          if (t.due_date && new Date(t.due_date) < today) {
+            result.overdue++;
+          }
+        });
+    
+        return result;
+      }, [tickets]);
+    
     return(
         <div className="flex flex-col item-center">
             
         <div>
             <h1 className="text-2xl font-bold mb-4">Ticket Info.</h1>
-        
-        <div className="flex flex-wrap gap-6 justify-center w-full">
-            <div style={cardStyle}>
-                <h3>Open ticket</h3>
-                <p>{sum_ticket_info.total_tickets}</p>
-            </div>
-            <div style={cardStyle}>
-                <h3>In Progress</h3>
-                <p>{sum_ticket_info.status_summary.in_progress}</p>
-            </div>
-            <div style={cardStyle}>
-                <h3>Resolve</h3>
-                <p>{sum_ticket_info.status_summary.resolved}</p>
-            </div>
-            <div style={cardStyle}>
-                <h3>Closed</h3>
-                <p>{sum_ticket_info.status_summary.closed}</p>
-            </div>
+              <div className="grid grid-cols-4 gap-5 w-full mb-8 px-4">
+                <KpiCard
+                title="Total Tickets"
+                value={summary.total}
+                icon={Ticket}
+                color="#6366f1"
+                />
+                <KpiCard
+                title="Open Tickets"
+                value={summary.open}
+                icon={AlertCircle}
+                color="#f59e0b"
+                />
+                <KpiCard
+                title="Unassigned"
+                value={summary.unassigned}
+                icon={UserX}
+                color="#ef4444"
+                />
+                <KpiCard
+                title="Overdue"
+                value={summary.overdue}
+                icon={Clock}
+                color="#22c55e"
+                />
 
         </div>
         </div>
         <div className="mt-8">
-            <AdminTicketTable />
+            <AdminTicketTable tickets={tickets} />
         </div>
     </div>
     );

@@ -1,55 +1,42 @@
-import React, { useState } from "react";
-
-const initialTickets = [
-  {
-    id: 1,
-    username: "Tom",
-    email: "Tom@example.com",
-    role: "user",
-    department: "IT",
-  },
-  {
-    id: 2,
-    username: "Alice",
-    email: "Alice@example.com",
-    role: "user",
-    department: "HR",
-  },
-  {
-    id: 3,
-    username: "Havard",
-    email: "Havard@example.com",
-    role: "assignee",
-    department: "Finance",
-  },
-  {
-    id: 4,
-    username: "Robert",
-    email: "Robert@example.com",
-    role: "user",
-    department: "etc",
-  },
-];
+import React, { useEffect, useState } from "react";
 
 export default function Adminassignee() {
-  const [tickets, setTickets] = useState(initialTickets);
+  const [users, setUsers] = useState(initialTickets);
   const [searchTerm, setSearchTerm] = useState("");
 
+useEffect(() => {
+    const fetchusers = async () => {
+      try {
+        const res = await fetch(`${API_URL}/users`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+          },
+        });
+        const data = await res.json();
+        setUsers(data);
+      } catch (err) {
+        console.error("Fetch users error:", err);
+      }
+    };
+
+    fetchusers();
+  }, []);
+
   const handleRoleChange = (id, newRole) => {
-    const updatedTickets = tickets.map((user) =>
+    const updatedTickets = users.map((user) =>
       user.id === id ? { ...user, role: newRole } : user,
     );
-    setTickets(updatedTickets);
+    setUsers(updatedTickets);
   };
 
   const handleChangeDepartment = (id, newDepartment) => {
-    const updatedTickets = tickets.map((user) =>
+    const updatedTickets = users.map((user) =>
       user.id === id ? { ...user, department: newDepartment } : user,
     );
-    setTickets(updatedTickets);
+    setUsers(updatedTickets);
   };
 
-  const filteredTickets = tickets.filter((user) =>
+  const filteredTickets = users.filter((user) =>
     user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
