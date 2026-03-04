@@ -44,11 +44,15 @@ router.post('/ollama', verifyToken, async (req, res) => {
     }
 
     try {
-        const [assigneeRows] = await db.promise().query('SELECT id, username, department FROM users where role = 1');
+        const [assigneeRows] = await db.promise().query('SELECT id, username, email, department FROM users where role = 1');
         const assigneeMap = {};
         const assigneeListString = assigneeRows
             .map(person => {
-                assigneeMap[person.username] = person.id; // ID for database query
+                assigneeMap[person.username] = {
+                    id: person.id,
+                    email: person.email
+                };  // ID for database query
+
                 return `- ${person.username}: ${person.department}`; // string for AI prompt
             })
             .join('\n');
@@ -87,9 +91,20 @@ router.post('/ollama', verifyToken, async (req, res) => {
 
         console.log("Raw AI Response:", response.message.content);
 
-        const draftTicket = ticketSchema.parse(JSON.parse(response.message.content));
-        const assignedName = draftTicket.suggested_assignee;
-        const assignedId = assigneeMap[assignedName] || null;
+        const draftTicket = ticketSchema.parse(
+            JSON.parse(response.message.content)
+        );
+
+        const rawAssigned = draftTicket.suggested_assignee;
+        const assignedName = rawAssigned.split(":")[0].trim();
+
+        const assignedData = assigneeMap[assignedName] || null;
+        const assignedId = assignedData?.id || null; 
+        const assignedEmail = assignedData?.email || null;
+
+        console.log("Raw Assigned:", rawAssigned);
+        console.log("Clean assigned:", assignedName);
+        console.log("Assigned Email:", assignedEmail);
 
         const insertDraftSQL = 'INSERT INTO tickets (title, summary, category,  solution, assignee, created_by, last_updated, status) VALUES (?,?,?,?,?,?,NOW(),0)'
         // const user_id = req.user.id;  
@@ -102,13 +117,30 @@ router.post('/ollama', verifyToken, async (req, res) => {
             assignedId,
             user_id
         ]);
-
+ 
+        /*send mail to user*/
         await sendEmail(
             email,
             "Draft Ticket Created",
             `Your draft ticket (#${result.insertId}) has been successfully created in CEiVoice.`
         );
 
+        /*send mail to assignee*/
+        if (assignedEmail) {
+            await sendEmail(
+                assignedEmail,
+                `New Ticket Assigned (#${result.insertId})`,
+                `You have been assigned a new ticket.
+
+        Title: ${draftTicket.suggested_title}
+        Category: ${draftTicket.suggested_category}
+        Urgency: ${draftTicket.urgency_level}
+
+        Please login to CeiVoice to review the ticket.`
+            );
+        }
+        
+        /* send response*/
         res.status(200).send({
             success : true,
             message: 'Draft ticket created',
