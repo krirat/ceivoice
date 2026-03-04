@@ -98,4 +98,28 @@ router.patch('/admin/users/:id/department', verifyToken, async (req, res) => {
     }
 });
 
+//TICKET'S REASSIGNEE
+router.patch('/admin/tickets/:ticketId', verifyToken, async (req, res) => {
+    const ticketId = req.params.ticketId;
+    const {assigneeId} = req.body;
+    try {
+        const [result] = await db.promise().query(
+            'UPDATE tickets SET assignee = ? where id = ?',
+            [assigneeId, ticketId]
+        );
+        if (result.affectedRows === 0) {
+            return res.status(404).send({ success : false, message: 'Ticket not found'});
+        }
+        res.status(200).send({
+            success: true,
+            message: "Ticket's assignee updated successfully",
+            updated_ticket: ticketId,
+            updated_assignee: assigneeId
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: 'Database error'});
+    }
+});
+
 export default router;
