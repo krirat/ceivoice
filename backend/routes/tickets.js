@@ -17,9 +17,9 @@ router.get('/', verifyToken, async (req, res) => {
     if (userRole === 0) {
         return res.status(403).send({ message: 'Access denied' });
     } else if (userRole === 1) {
-        query = 'SELECT * FROM tickets WHERE status != 0';
+        query = 'SELECT tickets.*, users.username AS assignee_username FROM tickets JOIN users ON tickets.assignee = users.id WHERE status != 0';
     } else if (userRole === 2) {
-        query = 'SELECT * FROM tickets';
+        query = 'SELECT tickets.*, users.username AS assignee_username FROM tickets JOIN users ON tickets.assignee = users.id';
     }
 
     try {

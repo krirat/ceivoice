@@ -17,7 +17,7 @@ function TicketInfo({ closeTicket, ticketId }) {
     const [loading, setLoading] = useState(true);
     const [ticketData, setTicketData] = useState(null);
     useEffect(() => {
-        console.log("Fetching ticket data and event logs...");
+        console.log("Fetching ticket data...");
         const fetchData = async () => {
             try {
                 const response = await fetch(`${API_URL}/tickets/${ticketId}`, {
