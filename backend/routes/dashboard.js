@@ -11,7 +11,7 @@ const router = express.Router();
 //ADMIN DASHBOARD
 //GET ALL ASSIGNEES
 router.get('/admin/assignees', verifyToken, async (req, res) => {
-    if (req.user.role != 1 || req.user.role != 2) {
+    if (req.user.role != 1 && req.user.role != 2) {
         return res.status(403).send({ success: false, message: 'Admin access required.' });
     }
     try {
@@ -101,14 +101,14 @@ router.patch('/admin/users/:id/department', verifyToken, async (req, res) => {
 //TICKET'S REASSIGNEE
 router.patch('/admin/tickets/:ticketId', verifyToken, async (req, res) => {
     const ticketId = req.params.ticketId;
-    const {assigneeId} = req.body;
+    const { assigneeId } = req.body;
     try {
         const [result] = await db.promise().query(
             'UPDATE tickets SET assignee = ? where id = ?',
             [assigneeId, ticketId]
         );
         if (result.affectedRows === 0) {
-            return res.status(404).send({ success : false, message: 'Ticket not found'});
+            return res.status(404).send({ success: false, message: 'Ticket not found' });
         }
         res.status(200).send({
             success: true,
@@ -118,7 +118,7 @@ router.patch('/admin/tickets/:ticketId', verifyToken, async (req, res) => {
         });
     } catch (err) {
         console.error(err);
-        res.status(500).send({ message: 'Database error'});
+        res.status(500).send({ message: 'Database error' });
     }
 });
 
