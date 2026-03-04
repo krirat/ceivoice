@@ -1,5 +1,14 @@
 import React from "react";
 
+const statuses = [
+  "Draft",
+  "New",
+  "Assigned",
+  "In Progress",
+  "Resolved",
+  "Closed"
+];
+
 export default function AdminTicketTable({
   tickets = [],
   selectedIds = [],
@@ -24,7 +33,7 @@ export default function AdminTicketTable({
         </thead>
 
         <tbody>
-          {tickets ? (
+          {!tickets ? (
             <tr>
               <td colSpan={7} className="text-center text-gray-500 p-6">
                 No tickets found
@@ -48,10 +57,10 @@ export default function AdminTicketTable({
                 </td>
 
                 <td className="p-2">{item.title}</td>
-                <td className="p-2 capitalize">{item.status}</td>
+                <td className="p-2 capitalize">{statuses[item.status] || item.status}</td>
                 <td className="p-2">{item.category}</td>
-                <td className="p-2">{item.assignee || "-"}</td>
-                <td className="p-2">{item.due_date || "-"}</td>
+                <td className="p-2">{item.assignee_username || "-"}</td>
+                <td className="p-2">{new Date(item.due_date).toLocaleString("en-GB") || "-"}</td>
 
                 {/* Action Buttons */}
                 <td className="p-2 flex gap-2">
