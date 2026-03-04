@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Modal from 'react-modal';
 import TicketInfo from '../components/ticketInfo';
+import AdminTicketTable from '@/components/Admin/AdminTicketTable';
 import { FaTrash, FaCheck, FaSignOutAlt, FaPlus, FaClipboardList, FaCoffee, FaCalendarAlt } from 'react-icons/fa';
 
 const CEI_LOGO_URL = "https://cei.kmitl.ac.th/wp-content/uploads/2024/09/cropped-ceip-fav-1.png";
@@ -12,20 +13,13 @@ const performanceMetrics = [
     { id: 3, label: 'Failed', value: 5, color: "bg-red-400/70 border-red-600" },
 ];
 
-const statuses = [
-    "Draft",
-    "New",
-    "Assigned",
-    "In Progress",
-    "Resolved",
-    "Closed"
-];
 
 function CustomerServiceDashboard() {
 
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [ticketId, setTicketId] = useState(null);
     const [tickets, setTickets] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
         console.log("Fetching tickets...");
@@ -52,6 +46,15 @@ function CustomerServiceDashboard() {
         setModalIsOpen(true);
     }
 
+    const filteredTickets = useMemo(() => {
+        return tickets.filter((t) =>
+            [t.title, t.status, t.category, t.assignee, t.due_date]
+                .join(" ")
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase()),
+        );
+    }, [tickets, searchTerm]);
+
     return (
         <div className="flex flex-col min-h-screen p-4 text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800">
             <Modal isOpen={modalIsOpen} overlayClassName='pb-8 fixed inset-0 overflow-scroll bg-[#FFFFFF80] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]' className="rounded-xl bg-white dark:bg-gray-700 p-4 w-1/2 min-w-[300px] mx-auto mt-20 border-2 border-gray-300">
@@ -75,42 +78,13 @@ function CustomerServiceDashboard() {
 
                 </select>
             </div>
-
-            {/* <ul className="rounded-lg border border-gray-300 dark:border-gray-600 p-4 mt-4 bg-white dark:bg-gray-700 divide-y divide-gray-300 dark:divide-gray-600">
-                {dataList.map(item => (
-                    <li key={item.id} className='p-2'><button onClick={() => setModalIsOpen(true)}>{item.title}</button></li>
-                ))}
-            </ul> */}
-            <div className='grid grid-cols-4'>
-                <div className='sticky top-0 rounded-tl-xl bg-gray-400 text-center'>
-                    Ticket
-                </div>
-                <div className='sticky top-0 bg-gray-400 text-center'>
-                    Status
-                </div>
-                <div className='sticky top-0 bg-gray-400 text-center'>
-                    Assignee
-                </div>
-                <div className='sticky top-0 rounded-tr-xl bg-gray-400 text-center'>
-                    Due Date
-                </div>
-            </div>
-
-            <div className='max-h-[300px] overflow-y-auto'>
-                <table className="w-full border border-t-0 border-separate border-spacing-y-0 rounded-b-xl">
-
-                    <tbody>
-                        {tickets.map(ticket => (
-                            <tr key={ticket.id} className='hover:bg-white overflow-auto' onClick={() => handleTicketClick(ticket.id)}>
-                                <td className="border border-l-0 border-b-0 border-white p-2">{ticket.title}</td>
-                                <td className="border border-b-0 border-white p-2">{statuses[ticket.status]}</td>
-                                <td className="border border-b-0 border-white p-2">{ticket.assignee_username}</td>
-                                <td className="border border-r-0 border-b-0 border-white p-2">{new Date(ticket.due_date).toLocaleDateString()}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+            <input
+                className="p-2 border rounded w-full max-w-sm"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <AdminTicketTable tickets={filteredTickets} onRowClick={handleTicketClick} onEdit={() => { }} onSubmit={() => { }} />
         </div>
     )
 }

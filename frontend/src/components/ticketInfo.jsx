@@ -6,11 +6,6 @@ import EventLogSection from "./eventLogSection";
 const API_URL = import.meta.env.VITE_API_URL;
 
 
-const eventLogs = [
-    { id: 1, action: 'Created Ticket #123', timestamp: '2024-10-01 10:00' },
-    { id: 2, action: 'Updated Ticket #124', timestamp: '2024-10-01 11:00' },
-];
-
 const statuses = ["Draft", "Open", "In Progress", "Resolved", "Closed"];
 
 function TicketInfo({ closeTicket, ticketId }) {
