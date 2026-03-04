@@ -133,7 +133,7 @@ function CustomerServiceDashboard() {
                             <tr key={ticket.id} className='hover:bg-white overflow-auto' onClick={() => handleTicketClick(ticket.id)}>
                                 <td className="border border-l-0 border-b-0 border-white p-2">{ticket.title}</td>
                                 <td className="border border-b-0 border-white p-2">{ticket.status}</td>
-                                <td className="border border-b-0 border-white p-2">{ticket.assignee}</td>
+                                <td className="border border-b-0 border-white p-2">{ticket.assignee_username}</td>
                                 <td className="border border-r-0 border-b-0 border-white p-2">{ticket.due_date}</td>
                             </tr>
                         ))}

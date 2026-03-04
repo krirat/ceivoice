@@ -47,11 +47,11 @@ function TicketInfo({ closeTicket, ticketId }) {
                         <StatusTag status={statuses[ticketData?.status] || "Unknown Status"} /> {/*TODO: Make status dropdown*/}
                         <div>
                             <span>Assigned to:</span>
-                            <select> {ticketData?.assignee || "Unassigned"}</select> {/*TODO: Make assignee dropdown*/}
+                            <select> {ticketData?.assignee_username || "Unassigned"}</select> {/*TODO: Make assignee dropdown*/}
                         </div>
                     </div>
                     <p><span className="font-semibold">Category:</span> {ticketData?.category || "No Category"}</p>
-                    <p><span className="font-semibold">Created by: </span>{ticketData?.created_by || "Unknown User"}</p>
+                    <p><span className="font-semibold">Created by: </span>{ticketData?.creator_username || "Unknown User"}</p>
                     <p className="mt-4 font-semibold">Summary: </p>
                     <p className="m-2">{ticketData?.summary || "No Summary"}</p>
                     <p className="font-semibold">Suggested Solution:</p>
