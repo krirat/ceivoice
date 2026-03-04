@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import CommentSection from "./commentSection";
 import StatusTag from "./ui/statusTag";
+import EventLogSection from "./eventLogSection";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -63,12 +64,9 @@ function TicketInfo({ closeTicket, ticketId }) {
                         <div className="my-3 flex justify-between w-full">
                             <p className="font-semibold">Event Logs:</p> <p className="text-sm">Last Updated: {ticketData?.last_updated || "Never"}</p>
                         </div>
-                        <ul className="my-2 divide-y divide-gray-300 dark:divide-gray-600 border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700">
-                            {eventLogs.map(log => (
-                                <li className="p-2" key={log.id}>{log.timestamp}: {log.action}</li>
-                            ))}
-                        </ul>
+
                     </div>
+                    <EventLogSection ticketId={ticketId} />
                     <CommentSection postId={ticketId} />
                 </>
             )}
