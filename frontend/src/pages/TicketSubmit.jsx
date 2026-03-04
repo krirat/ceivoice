@@ -22,10 +22,13 @@ export default function TicketSubmit() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const token = localStorage.getItem("auth_token");
+
     const res = await fetch("http://localhost:5001/api/ollama", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify({ problem }),
     });
@@ -48,7 +51,7 @@ export default function TicketSubmit() {
       </CardHeader>
 
       <CardContent>
-        <form>
+        <form onSubmit={handleSubmit}>
           <div className="flex flex-col gap-6">
 
             <div className="grid gap-2">
@@ -69,18 +72,18 @@ export default function TicketSubmit() {
                 placeholder="Enter description"
                 className="min-h-[120px] text-left"
                 required
+                value={problem}
+                onChange={(e) => setProblem(e.target.value)}
               />
             </div>
 
           </div>
+
+          <Button type="submit" className="w-full mt-4">
+            Submit
+          </Button>
         </form>
       </CardContent>
-
-      <CardFooter className="flex-col gap-2">
-        <Button type="submit" className="w-full">
-          Submit
-        </Button>
-      </CardFooter>
     </Card>
     </div>
   )

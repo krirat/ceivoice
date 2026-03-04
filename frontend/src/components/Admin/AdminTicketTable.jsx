@@ -1,8 +1,8 @@
 import React from "react";
 
 export default function AdminTicketTable({
-  tickets,
-  selectedIds,
+  tickets = [],
+  selectedIds = [],
   onToggleSelect,
   onRowClick,
   onEdit,

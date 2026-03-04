@@ -74,6 +74,42 @@ router.put('/:id', verifyToken, async (req, res) => {
             );
         }
 
+        await db.promise().query(
+            "UPDATE tickets SET title=?, smmary=?, solution=?, due_date=?, assignee=?, status=?, last_updated=NOW() WHERE id=?",
+            [title, summary, solution, due_date, assignee, status, req.params.id]
+        );
+
+        //notify creator when draft -> active
+        if (oldStatus === 0 && status === 1) {
+            await sendEmail(
+                userEmail,
+                "Your Ticket Has Been Published.",
+                `Your ticket #${req.params.id} is now active and being processed.`
+            );
+        }
+
+        //notify assignee
+        if (assignee) {
+            const [assigneeRows] = await db.promise().query(
+                "SELECT email FROM users WHERE id = ?",
+                [assignee]
+            );
+
+            if (assigneeRows.length > 0 ) {
+                const assigneeEmail = assigneeRows[0].email;
+
+                await sendEmail(
+                    assigneeEmail,
+                    `You have been assigned Ticket #${req.params.id}`,
+                    `
+                    <h3>New Ticket Assigned</h3>
+                    <p>You have been assigned to ticket #${req.params.id}.</p>
+                    <p>Please login to CEiVoice to review it.</p>
+                    `
+                );
+            }
+        }
+        
         res.json({ success: true, message: "Ticket updated successfully" });
     } catch (err) {
         console.error(err)
@@ -86,10 +122,39 @@ router.patch('/:id', verifyToken, async (req, res) => {
     const { status } = req.body;
 
     try {
+        //get ticket creato remail
+        const [rows] = await db.promise().query(
+            `SELECT users.email 
+             FROM tickets
+             JOIN users ON tickets.created_by = users.id
+             WHERE tickets.id = ?`,
+            [req.params.id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).send({ message: "Ticket Not Found" });
+        }
+        const userEmail = rows[0].email;
+
         await db.promise().query(
             'UPDATE tickets SET status=? where id = ?',
             [status, req.params.id]
         );
+
+        //send amil when resolved or closed
+        if (status == 3 || status == 4) {
+            await sendEmail(
+                userEmail,
+                `Ticket #${req.params.id} Status Updated`,
+                `
+                <h3>Status Updated</h3>
+                <p>Your ticket is now marked as 
+                <strong>${status == 3 ? "Resolved" : "Closed"}</strong>.
+                </p>
+                `
+            );
+        }
+
         res.status(200).send({
             success: true,
             message: "Status updated successfully",
@@ -200,17 +265,45 @@ router.post('/:id/comments', verifyToken, async (req, res) => {
                 });
             }
         }
+
         const [insertResult] = await db.promise().query(
             'INSERT INTO comments (created_by, created_at, content, ticket_id, visibility) VALUES ( ?, NOW(), ?, ?, ?)',
             [author_id, content, ticketId, visibility]
         );
-        res.status(201).send({
-            success: true,
-            message: 'Comment added successfully',
-            comment_id: insertResult.insertId,
-            ticket_id: ticketId,
-            visibility: visibility
-        });
+
+        //notify user on public comment
+        if (visibility === "public") {
+            const [ticketRows] = await db.promise().query(
+                `SELECT users.email
+                FROM tickets
+                JOIN users ON tickets.created_by = users.id
+                WHERE tickets.id = ?`,
+                [ticketId]
+            );
+        
+            if (ticketRows.length > 0) {
+                const creatorEmail = ticketRows[0].email;
+
+                await sendEmail(
+                    creatorEmail,
+                    `New Comment on Ticket #${ticketId}`,
+                    `
+                    <h3>New Public Comment</h3>
+                    <p>A new public comment has been added to your ticket.</p>
+                    <p>Please login to CEiVoice to review it.</p>
+                `
+                );
+            }
+        }    
+
+    res.status(201).send({
+        success: true,
+        message: 'Comment added successfully',
+        comment_id: insertResult.insertId,
+        ticket_id: ticketId,
+        visibility: visibility
+    });
+
     } catch (err) {
         console.error('Failed to add comment:', err);
         if (err.code === 'ER_NO_REFERENCED_ROW_2') {
@@ -273,7 +366,7 @@ router.delete('/:id/comments/:commentId', verifyToken, async (req, res) => {
         if (commentRows.length === 0) {
             return res.status(404).send({ success: false, message: "Comment not found" });
         }
-        const author_id = commentRows[0].author_id;
+        const author_id = commentRows[0].created_by;
         if (userRole != 2 && author_id != userId) {
             return res.status(403).send({
                 success: false,
