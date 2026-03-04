@@ -355,7 +355,7 @@ export default function AdminTicket() {
 /* =======================
    KPI CARD
 ======================= */
-function KpiCard({ title, value, icon: Icon, color }) {
+export function KpiCard({ title, value, icon: Icon, color }) {
   return (
     <div
       className="bg-white rounded-xl p-5 shadow-md border-l-4"

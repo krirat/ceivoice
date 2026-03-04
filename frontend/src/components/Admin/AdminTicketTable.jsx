@@ -1,8 +1,8 @@
 import React from "react";
 
 export default function AdminTicketTable({
-  tickets,
-  selectedIds,
+  tickets = [],
+  selectedIds = [],
   onToggleSelect,
   onRowClick,
   onEdit,
@@ -24,7 +24,7 @@ export default function AdminTicketTable({
         </thead>
 
         <tbody>
-          {tickets.length === 0 ? (
+          {tickets ? (
             <tr>
               <td colSpan={7} className="text-center text-gray-500 p-6">
                 No tickets found
