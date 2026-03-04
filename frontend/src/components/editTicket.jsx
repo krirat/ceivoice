@@ -1,13 +1,39 @@
-function EditTicket({
-  editingTicket,
-  setEditingTicket,
-  setIsEditOpen,
-  setTickets,
-}) {
-  return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-xl w-[420px] shadow-lg">
-        <h2 className="text-lg font-bold mb-4">Edit Ticket</h2>
+import { useEffect, useState } from "react";
+
+
+
+function EditTicket({ editingTicket, setEditingTicket, setIsEditOpen, setTickets }) {
+    const API_URL = import.meta.env.VITE_API_URL;
+    const [assignees, setAssignees] = useState([]);
+
+
+        useEffect(() => {
+            console.log("Fetching assignees...");
+            const fetchData = async () => {
+                try {
+                    const response = await fetch(`${API_URL}/dashboard/admin/assignees`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+                        },
+                    });
+                    const data = await response.json();
+                    console.log(data);
+                    setAssignees(data);
+                } catch (error) {
+                    console.error("Error fetching assignee data:", error);
+                }
+            };
+            fetchData();
+    
+        }, [editingTicket]);
+
+
+    return (
+        console.log("Editing ticket:", editingTicket),
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-xl w-[420px] shadow-lg">
+                <h2 className="text-lg font-bold mb-4">Edit Ticket</h2>
 
         {/* Title */}
         <label className="block text-sm font-medium mb-1">Title</label>
@@ -45,15 +71,28 @@ function EditTicket({
           }
         />
 
-        {/* Assignee */}
-        <label className="block text-sm font-medium mb-1">Assignee</label>
-        <input
-          className="w-full border rounded px-3 py-2 mb-3"
-          value={editingTicket.assignee}
-          onChange={(e) =>
-            setEditingTicket({ ...editingTicket, assignee: e.target.value })
-          }
-        />
+                {/* Assignee */}
+                <label className="block text-sm font-medium mb-1">Assignee</label>
+                <select
+                    className="w-full border rounded px-3 py-2 mb-3"
+                    value={editingTicket.assignee}
+                    onChange={(e) =>
+                        setEditingTicket({ ...editingTicket, assignee: e.target.value })
+                    }
+                >
+                    {assignees.map((assignee) => (
+                        <option key={assignee.id} value={assignee.id}>
+                            {assignee.username}
+                        </option>
+                    ))}
+                </select>
+                {/* <input
+                    className="w-full border rounded px-3 py-2 mb-3"
+                    value={editingTicket.assignee}
+                    onChange={(e) =>
+                        setEditingTicket({ ...editingTicket, assignee: e.target.value })
+                    }
+                /> */}
 
         {/* Due Date */}
         <label className="block text-sm font-medium mb-1">Due Date</label>
