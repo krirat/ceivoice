@@ -5,178 +5,147 @@ import Modal from 'react-modal';
 import TicketInfo from '../components/ticketInfo';
 import { KpiCard } from "@/components/Admin/AdminTicket.jsx";
 import { Ticket, AlertCircle, UserX, Clock } from "lucide-react";
-const initialtickets = [
-  {
-    id: 1,
-    title: "Login page broken",
-    status: "open",
-    category: "Bug",
-    assignee: "John Doe",
-    due_date: "2026-02-28",
-  },
-  {
-    id: 2,
-    title: "Add dark mode",
-    status: "in_progress",
-    category: "Feature Request",
-    assignee: "Jane Smith",
-    due_date: "2026-03-10",
-  },
-  {
-    id: 3,
-    title: "Fix payment gateway",
-    status: "resolved",
-    category: "Technical Issue",
-    assignee: "Unassigned",
-    due_date: "2026-02-20",
-  },
-  {
-    id: 4,
-    title: "Reset password not working",
-    status: "closed",
-    category: "Bug",
-    assignee: "",
-    due_date: "2026-02-15",
-  },
-  {
-    id: 5,
-    title: "Upgrade database",
-    status: "open",
-    category: "Maintenance",
-    assignee: "Alex Johnson",
-    due_date: "2026-03-01",
-  },
-  {
-    id: 6,
-    title: "Improve dashboard UI",
-    status: "in_progress",
-    category: "UI/UX",
-    assignee: "Emily Brown",
-    due_date: "2026-02-18",
-  },
-  {
-    id: 7,
-    title: "Server downtime issue",
-    status: "open",
-    category: "Infrastructure",
-    assignee: "Unassigned",
-    due_date: "2026-02-10",
-  },
-];
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+// const initialtickets = [
+//   {
+//     id: 1,
+//     title: "Login page broken",
+//     status: "open",
+//     category: "Bug",
+//     assignee: "John Doe",
+//     due_date: "2026-02-28",
+//   },
+//   {
+//     id: 2,
+//     title: "Add dark mode",
+//     status: "in_progress",
+//     category: "Feature Request",
+//     assignee: "Jane Smith",
+//     due_date: "2026-03-10",
+//   },
+//   {
+//     id: 3,
+//     title: "Fix payment gateway",
+//     status: "resolved",
+//     category: "Technical Issue",
+//     assignee: "Unassigned",
+//     due_date: "2026-02-20",
+//   },
+//   {
+//     id: 4,
+//     title: "Reset password not working",
+//     status: "closed",
+//     category: "Bug",
+//     assignee: "",
+//     due_date: "2026-02-15",
+//   },
+//   {
+//     id: 5,
+//     title: "Upgrade database",
+//     status: "open",
+//     category: "Maintenance",
+//     assignee: "Alex Johnson",
+//     due_date: "2026-03-01",
+//   },
+//   {
+//     id: 6,
+//     title: "Improve dashboard UI",
+//     status: "in_progress",
+//     category: "UI/UX",
+//     assignee: "Emily Brown",
+//     due_date: "2026-02-18",
+//   },
+//   {
+//     id: 7,
+//     title: "Server downtime issue",
+//     status: "open",
+//     category: "Infrastructure",
+//     assignee: "Unassigned",
+//     due_date: "2026-02-10",
+//   },
+// ];
 
 export default function CustomerDashboard() {
-  const tickets = initialtickets;
-  const sum_ticket_info = useMemo(() => {
+  const [ticketId, setTicketId] = useState(null);
+  // const tickets = initialtickets;
+  const [tickets, setTickets] = useState([]);
+  const [editingTicket, setEditingTicket] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
-    const summary = {
-      total_tickets: tickets.length,
 
-      status_summary: {
-        open: 0,
-        in_progress: 0,
-        resolved: 0,
-        closed: 0,
-      },
+      useEffect(() => {
+          console.log("Fetching tickets...");
+          const fetchData = async () => {
+              try {
+                  const response = await fetch(`${API_URL}/tickets`, {
+                      method: 'GET',
+                      headers: {
+                          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+                      },
+                  });
+                  const data = await response.json();
+                  console.log(data);
+                  setTickets(data);
+              } catch (error) {
+                  console.error("Error fetching ticket data:", error);
+              }
+          };
+          fetchData();
+  
+      }, [ticketId]);
 
-      category_summary: {},
+      const handleTicketClick = (id) => {
+        setTicketId(id);
+        setModalIsOpen(true);
+    }
 
-      unassigned_tickets: 0,
-      overdue_tickets: 0,
-    };
+    const filteredTickets = useMemo(() => {
+      return tickets.filter((t) =>
+          [t.title, t.status, t.category, t.assignee, t.due_date]
+              .join(" ")
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()),
+      );
+    }, [tickets, searchTerm]);
 
-    const today = new Date();
 
-    tickets.forEach(ticket => {
-
-      // Status count
-      if (summary.status_summary[ticket.status] !== undefined) {
-        summary.status_summary[ticket.status]++;
-      }
-
-      // Category count
-      if (!summary.category_summary[ticket.category]) {
-        summary.category_summary[ticket.category] = 0;
-      }
-      summary.category_summary[ticket.category]++;
-
-      // Unassigned
-      if (!ticket.assignee || ticket.assignee === "Unassigned") {
-        summary.unassigned_tickets++;
-      }
-
-      // Overdue
-      if (ticket.due_date && new Date(ticket.due_date) < today) {
-        summary.overdue_tickets++;
-      }
-    });
-
-    return summary;
-  }, [tickets]);
-  const summary = useMemo(() => {
-    const result = {
-      total: tickets.length,
-      open: 0,
-      in_progress: 0,
-      resolved: 0,
-      closed: 0,
-      unassigned: 0,
-      overdue: 0,
-    };
-
-    const today = new Date();
-
-    tickets.forEach((t) => {
-      if (result[t.status] !== undefined) {
-        result[t.status]++;
-      }
-
-      if (!t.assignee || t.assignee === "Unassigned") {
-        result.unassigned++;
-      }
-
-      if (t.due_date && new Date(t.due_date) < today) {
-        result.overdue++;
-      }
-    });
-
-    return result;
-  }, [tickets]);
-
-  return (
-    <div className="flex flex-col item-center">
-
-      <div>
-        <h1 className="text-2xl font-bold mb-4">Ticket Info.</h1>
-        <div className="grid grid-cols-4 gap-5 w-full mb-8 px-4">
-          <KpiCard
-            title="Total Tickets"
-            value={summary.total}
-            icon={Ticket}
-            color="#6366f1"
-          />
-          <KpiCard
-            title="Open Tickets"
-            value={summary.open}
-            icon={AlertCircle}
-            color="#f59e0b"
-          />
-          <KpiCard
-            title="Unassigned"
-            value={summary.unassigned}
-            icon={UserX}
-            color="#ef4444"
-          />
-          <KpiCard
-            title="Overdue"
-            value={summary.overdue}
-            icon={Clock}
-            color="#22c55e"
-          />
+    return(
+        <div className="flex flex-col item-center">
+            
+        <div>
+            <h1 className="text-2xl font-bold mb-4">Ticket Info.</h1>
+              <div className="grid grid-cols-4 gap-5 w-full mb-8 px-4">
+                <KpiCard
+                title="Total Tickets"
+                value={4}
+                icon={Ticket}
+                color="#6366f1"
+                />
+                <KpiCard
+                title="Open Tickets"
+                value={4}
+                icon={AlertCircle}
+                color="#f59e0b"
+                />
+                <KpiCard
+                title="Unassigned"
+                value={4}
+                icon={UserX}
+                color="#ef4444"
+                />
+                <KpiCard
+                title="Overdue"
+                value={4}
+                icon={Clock}
+                color="#22c55e"
+                />
 
         </div>
       </div>
       <div className="mt-8">
-        <AdminTicketTable tickets={tickets} showCheckbox={false} showEdit={false} showSubmit={false} />
+        <AdminTicketTable tickets={tickets} showCheckbox={false} showEdit={false} showSubmit={false} onRowClick={handleTicketClick} onEdit={(ticket) => { setEditingTicket(ticket); setIsEditOpen(true); }} onSubmit={() => { }}/>
       </div>
     </div>
   );

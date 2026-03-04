@@ -1,4 +1,5 @@
 import React from "react";
+import StatusTag from "../ui/statusTag";
 
 const statuses = [
   "Draft",
@@ -65,7 +66,9 @@ export default function AdminTicketTable({
                   </td>)}
 
                 <td className="p-2">{item.title}</td>
-                <td className="p-2 capitalize">{statuses[item.status] || item.status}</td>
+                {/* <td className="p-2 capitalize">{statuses[item.status] || item.status}</td> */}
+                <td className="p-2 capitalize"><StatusTag status={statuses[item.status]} /></td>
+
                 <td className="p-2">{item.category}</td>
                 <td className="p-2">{item.assignee_username || "-"}</td>
                 <td className="p-2">{new Date(item.due_date).toLocaleString("en-GB") || "-"}</td>

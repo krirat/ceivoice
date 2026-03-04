@@ -15,15 +15,17 @@ router.get('/', verifyToken, async (req, res) => {
     const userRole = req.user.role;
     let query = '';
     if (userRole === 0) {
-        return res.status(403).send({ message: 'Access denied' });
+        query = 'SELECT tickets.*, users.username AS assignee_username FROM tickets LEFT JOIN users ON tickets.assignee = users.id WHERE created_by = ?';
     } else if (userRole === 1) {
-        query = 'SELECT tickets.*, users.username AS assignee_username FROM tickets JOIN users ON tickets.assignee = users.id WHERE status != 0';
+        query = 'SELECT tickets.*, users.username AS assignee_username FROM tickets LEFT JOIN users ON tickets.assignee = users.id WHERE status != 0';
     } else if (userRole === 2) {
-        query = 'SELECT tickets.*, users.username AS assignee_username FROM tickets JOIN users ON tickets.assignee = users.id';
+        query = 'SELECT tickets.*, users.username AS assignee_username FROM tickets LEFT JOIN users ON tickets.assignee = users.id';
     }
 
     try {
-        const [rows] = await db.promise().query(query);
+        console.log("Executing query with user ID:", req.user.id);
+        const [rows] = await db.promise().query(query, [req.user.id]);
+        console.log(rows);
         res.json(rows);
     } catch (err) {
         res.status(500).send({ message: 'Database error' });
