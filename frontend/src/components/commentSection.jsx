@@ -51,7 +51,9 @@ function CommentSection({ postId }) {
             <h3>Comments</h3>
             <ul>
                 {comments.map(comment => (
-                    <li key={comment.id}>{comment.content}</li>
+                    <li key={comment.id}>
+                        <strong>{comment.created_by_username}</strong>: {comment.content}
+                    </li>
                 ))}
             </ul>
             <input
