@@ -41,10 +41,7 @@ function TicketInfo({ closeTicket, ticketId }) {
                     <h1 className="text-3xl font-bold mb-6">{ticketData?.title || "Untitled Ticket"}</h1>
                     <div className="my-4 flex justify-between w-full">
                         <StatusTag status={statuses[ticketData?.status] || "Unknown Status"} /> {/*TODO: Make status dropdown*/}
-                        <div>
-                            <span>Assigned to:</span>
-                            <select> {ticketData?.assignee_username || "Unassigned"}</select> {/*TODO: Make assignee dropdown*/}
-                        </div>
+                        <p><span className="font-semibold">Assigned to:</span> {ticketData?.assignee_username || "Unassigned"}</p>
                     </div>
                     <p><span className="font-semibold">Category:</span> {ticketData?.category || "No Category"}</p>
                     <p><span className="font-semibold">Created by: </span>{ticketData?.creator_username || "Unknown User"}</p>
