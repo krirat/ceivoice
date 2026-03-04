@@ -16,6 +16,7 @@ export default function AdminTicketTable({
   onRowClick,
   onEdit,
   onSubmit,
+  showSubmit = true
 }) {
   return (
     <div className="overflow-x-auto w-full">
@@ -73,16 +74,17 @@ export default function AdminTicketTable({
                   >
                     Edit
                   </button>
-
-                  <button
-                    className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSubmit(item.id);
-                    }}
-                  >
-                    Submit
-                  </button>
+                  {showSubmit && (
+                    <button
+                      className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSubmit(item.id);
+                      }}
+                    >
+                      Submit
+                    </button>
+                  )}
                 </td>
               </tr>
             ))
