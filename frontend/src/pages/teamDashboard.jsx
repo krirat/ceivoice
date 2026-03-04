@@ -70,13 +70,6 @@ function CustomerServiceDashboard() {
             </div>
             <h1 className="text-3xl font-bold my-4">Tickets:</h1>
             <div className="flex justify-center max-w-[180px] p-2 rounded-full bg-white dark:bg-gray-700">
-                {/*TODO: Add filter functionality*/}
-                <select name="filter" >
-                    <option className="flex justify-center space-x-4 mt-4">Assigned Tickets</option>
-                    <option className="flex justify-center space-x-4 mt-4">Unassigned Tickets</option>
-                    <option className="flex justify-center space-x-4 mt-4">All Tickets</option>
-
-                </select>
             </div>
             <input
                 className="p-2 border rounded w-full max-w-sm"
