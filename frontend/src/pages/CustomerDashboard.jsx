@@ -103,6 +103,30 @@ export default function CustomerDashboard() {
         setModalIsOpen(true);
     }
 
+    const summary = useMemo(() => {
+      const result = {
+        total: tickets.length,
+        open: 0,
+        in_progress: 0,
+        resolved: 0,
+        closed: 0,
+        unassigned: 0,
+        overdue: 0,
+      };
+
+      tickets.forEach((ticket) => {
+        result[ticket.status] = (result[ticket.status] || 0) + 1;
+        if (!ticket.assignee) {
+          result.unassigned += 1;
+        }
+        if (ticket.due_date && new Date(ticket.due_date) < new Date()) {
+          result.overdue += 1;
+        }
+      });
+
+      return result;
+    }, [tickets]);
+
     const filteredTickets = useMemo(() => {
       return tickets.filter((t) =>
           [t.title, t.status, t.category, t.assignee, t.due_date]
@@ -121,25 +145,25 @@ export default function CustomerDashboard() {
               <div className="grid grid-cols-4 gap-5 w-full mb-8 px-4">
                 <KpiCard
                 title="Total Tickets"
-                value={4}
+                value={summary.total}
                 icon={Ticket}
                 color="#6366f1"
                 />
                 <KpiCard
                 title="Open Tickets"
-                value={4}
+                value={summary.open}
                 icon={AlertCircle}
                 color="#f59e0b"
                 />
                 <KpiCard
                 title="Unassigned"
-                value={4}
+                value={summary.unassigned}
                 icon={UserX}
                 color="#ef4444"
                 />
                 <KpiCard
                 title="Overdue"
-                value={4}
+                value={summary.overdue}
                 icon={Clock}
                 color="#22c55e"
                 />
