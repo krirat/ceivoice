@@ -5,6 +5,7 @@ import Modal from 'react-modal';
 import TicketInfo from '../components/ticketInfo';
 import { KpiCard } from "@/components/Admin/AdminTicket.jsx";
 import { Ticket, AlertCircle, UserX, Clock } from "lucide-react";
+import Navbar from "@/components/navbar.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -114,8 +115,8 @@ export default function CustomerDashboard() {
 
     return(
         <div className="flex flex-col item-center">
-            
-        <div>
+            <Navbar />
+        <div className="p-4">
             <h1 className="text-2xl font-bold mb-4">Ticket Info.</h1>
               <div className="grid grid-cols-4 gap-5 w-full mb-8 px-4">
                 <KpiCard
@@ -145,7 +146,7 @@ export default function CustomerDashboard() {
 
         </div>
       </div>
-      <div className="mt-8">
+      <div className="p-8">
         <Modal isOpen={modalIsOpen} overlayClassName='pb-8 fixed inset-0 overflow-scroll bg-[#FFFFFF80] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]' className="rounded-xl bg-white dark:bg-gray-700 p-4 w-1/2 min-w-[300px] mx-auto mt-20 border-2 border-gray-300">
             <TicketInfo closeTicket={() => setModalIsOpen(false)} ticketId={ticketId} />
         </Modal>
