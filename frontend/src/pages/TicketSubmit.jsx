@@ -1,6 +1,6 @@
 
 
-
+import Navbar from "@/components/navbar.jsx";
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -44,6 +44,8 @@ export default function TicketSubmit() {
   };
 
   return (
+    <>
+    <Navbar title="Ticket Submit" />
     <div className="flex h-screen bg-black/20 items-center justify-center">
     <Card className="w-full max-w-sm">
       <CardHeader>
@@ -86,5 +88,6 @@ export default function TicketSubmit() {
       </CardContent>
     </Card>
     </div>
+    </>
   )
 }
