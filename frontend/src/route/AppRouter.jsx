@@ -15,12 +15,12 @@ const AppRouter = () => {
     return (
         <Routes>
             {/* normal page */}
-            <Route path="/" element={<Navigate to="/ticket-submit" />} />
+            <Route path="/" element={<Navigate to="/admin" />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/auth/success" element={<AuthSuccess />} />
             <Route path="/ticket-submit" element={<TicketSubmit />} />
-            <Route element={<ProtectedRoute />}>
+            <Route element={<ProtectedRoute />}> 
                 <Route path="/admin" element={<AdminLayout />}>
                     <Route index element={<AdminDashboard />} />
                     <Route path="tickets" element={<AdminTicket />} />

@@ -20,7 +20,7 @@ const STATUS_LABEL = {
   2: "Assigned",
   3: "Resolving",
   4: "Resolved",
-  5: "Failed"
+  5: "Failed",
 };
 
 export default function AdminDashboard() {
@@ -55,8 +55,8 @@ export default function AdminDashboard() {
   ======================= */
   const stats = useMemo(() => {
     const total = tickets.length;
-    const inprogress = tickets.filter(t => t.status === 1).length;
-    const resolvedTickets = tickets.filter(t => t.status === 2);
+    const inprogress = tickets.filter((t) => t.status === 1).length;
+    const resolvedTickets = tickets.filter((t) => t.status === 2);
 
     let avgResolutionTime = 0;
 
@@ -86,13 +86,13 @@ export default function AdminDashboard() {
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const map = {};
 
-    tickets.forEach(t => {
+    tickets.forEach((t) => {
       const d = new Date(t.created_at);
       const day = days[d.getDay()];
       map[day] = (map[day] || 0) + 1;
     });
 
-    return days.map(d => ({
+    return days.map((d) => ({
       date: d,
       tickets: map[d] || 0,
     }));
@@ -107,8 +107,8 @@ export default function AdminDashboard() {
     const count = {};
 
     tickets
-      .filter(t => t.status === 2 && t.last_updated)
-      .forEach(t => {
+      .filter((t) => t.status === 2 && t.last_updated)
+      .forEach((t) => {
         const created = new Date(t.created_at);
         const updated = new Date(t.last_updated);
         const hours = (updated - created) / (1000 * 60 * 60);
@@ -118,7 +118,7 @@ export default function AdminDashboard() {
         count[day] = (count[day] || 0) + 1;
       });
 
-    return days.map(d => ({
+    return days.map((d) => ({
       date: d,
       hours: count[d] ? +(total[d] / count[d]).toFixed(1) : 0,
     }));
@@ -129,9 +129,12 @@ export default function AdminDashboard() {
   ======================= */
   const statusDistribution = useMemo(() => {
     return [
-      { name: "Open", value: tickets.filter(t => t.status === 0).length },
-      { name: "In Progress", value: tickets.filter(t => t.status === 1).length },
-      { name: "Resolved", value: tickets.filter(t => t.status === 2).length },
+      { name: "Open", value: tickets.filter((t) => t.status === 0).length },
+      {
+        name: "In Progress",
+        value: tickets.filter((t) => t.status === 1).length,
+      },
+      { name: "Resolved", value: tickets.filter((t) => t.status === 2).length },
     ];
   }, [tickets]);
 
@@ -171,7 +174,14 @@ export default function AdminDashboard() {
         }}
       >
         {/* LEFT */}
-        <div style={{ flex: 2, display: "flex", flexDirection: "column", gap: "20px" }}>
+        <div
+          style={{
+            flex: 2,
+            display: "flex",
+            flexDirection: "column",
+            gap: "20px",
+          }}
+        >
           <div style={{ flex: 1 }}>
             <h2 className="text-lg p-2">Tickets Created This Week</h2>
             <ResponsiveContainer width="100%" height="100%">
@@ -198,26 +208,65 @@ export default function AdminDashboard() {
         </div>
 
         {/* RIGHT */}
-        <div style={{ flex: 1 }}>
-          <h2 className="text-lg">Ticket Status Distribution</h2>
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={statusDistribution}
-                dataKey="value"
-                nameKey="name"
-                innerRadius={50}
-                outerRadius={120}
-                label
-              >
-                <Cell fill="#ef4444" />
-                <Cell fill="#facc15" />
-                <Cell fill="#22c55e" />
-              </Pie>
-              <Tooltip />
-              <Legend verticalAlign="bottom" />
-            </PieChart>
-          </ResponsiveContainer>
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            gap: "20px",
+          }}
+        >
+          <div style={{ height: "200px" }}>
+            <h2 className="text-lg">Ticket Status Distribution</h2>
+
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={statusDistribution}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40}
+                  outerRadius={80}
+                  paddingAngle={3}
+                >
+                  <Cell fill="#ef4444" />
+                  <Cell fill="#facc15" />
+                  <Cell fill="#22c55e" />
+                </Pie>
+
+                <Tooltip />
+                <Legend verticalAlign="bottom" />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div style={{ height: "200px" }}>
+            <h2 className="text-lg">Top Category</h2>
+
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={statusDistribution}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40}
+                  outerRadius={80}
+                  paddingAngle={3}
+                >
+                  <Cell fill="#ef4444" />
+                  <Cell fill="#facc15" />
+                  <Cell fill="#22c55e" />
+                </Pie>
+
+                <Tooltip />
+                <Legend verticalAlign="bottom" />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>
