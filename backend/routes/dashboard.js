@@ -1,5 +1,6 @@
 import db from '../config/db.js';
 import { verifyToken } from '../middleware/auth.js';
+import {logReassignedEvent} from '../services/loggingService.js';
 import express from 'express';
 import dotenv from 'dotenv';
 
@@ -110,6 +111,7 @@ router.patch('/admin/tickets/:ticketId', verifyToken, async (req, res) => {
         if (result.affectedRows === 0) {
             return res.status(404).send({ success: false, message: 'Ticket not found' });
         }
+        await logReassignedEvent(ticketId, req.user.id, String(assigneeId));
         res.status(200).send({
             success: true,
             message: "Ticket's assignee updated successfully",
