@@ -186,6 +186,7 @@ router.patch('/:id', verifyToken, async (req, res) => {
 // Merge Tickets
 router.post('/merge', verifyToken, async (req, res) => {
     const { ticketIDs } = req.body;
+    const adminId = req.user.id;
 
     if (!Array.isArray(ticketIDs) || ticketIDs.length < 2) {
         return res.status(400).send({
@@ -197,9 +198,30 @@ router.post('/merge', verifyToken, async (req, res) => {
     try {
         await db.promise().beginTransaction();
 
-        const [insertResult] = await db.promise().query('INSERT INTO ticket_group () VALUES ()');
-        const groupId = insertResult.insertId;
+        const [sourceTickets] = await db.promise().query(
+            'SELECT title, category, solution, assignee, summary FROM tickets WHERE id IN (?) LIMIT 1', 
+            [ticketIDs]
+        );
+        
+        const baseTitle = sourceTickets.length > 0 ? sourceTickets[0].title : 'Merged Requests';
+        const baseCategory = sourceTickets.length > 0 ? sourceTickets[0].category : 'General';
+        const baseSolution = sourceTickets.length > 0 ? sourceTickets[0].solution : 'Merged Solutions';
+        const baseAssignee = sourceTickets.length > 0 ? sourceTickets[0].assignee : 'Merged Assignee';
+        const baseSummary = sourceTickets.length > 0 ? sourceTickets[0].summary : 'Merged Summary';
 
+        const [insertGroupResult] = await db.promise().query('INSERT INTO ticket_group () VALUES ()');
+        const groupId = insertGroupResult.insertId;
+
+        //Master DRAFT ticket
+        const draftTitle = `[Merged] ${baseTitle}`;
+        const draftSummary = `Merged Mass Report: Consolidates ${ticketIDs.length} similar user requests. Linked Original Ticket IDs: ${ticketIDs.join(', ')}.\n${baseSummary}`;
+
+        const [draftTicketResult] = await db.promise().query(
+            'INSERT INTO tickets (title, summary, category, status, created_by, solution, last_updated, assignee, group_id) VALUES (?, ?, ?, 0, ?, ?, NOW(), ?, ?)',
+            [draftTitle, draftSummary, baseCategory, adminId, baseSolution, baseAssignee, groupId]
+        );
+        const masterTicketId = draftTicketResult.insertId;
+        
         const [updateResults] = await db.promise().query(
             'UPDATE tickets SET group_id = ? WHERE id IN (?)',
             [groupId, ticketIDs]
@@ -213,9 +235,9 @@ router.post('/merge', verifyToken, async (req, res) => {
 
         res.status(200).send({
             success: true,
-            message: `${updateResults.affectedRows} tickets successfully merged into group ${groupId}.`,
+            message: `Successfully merged ${ticketIDs.length} requests into Draft Ticket #${masterTicketId}.`,
             groupId: groupId,
-            mergedTicketIds: ticketIDs
+            draftTicketId: masterTicketId
         });
 
     } catch (err) {

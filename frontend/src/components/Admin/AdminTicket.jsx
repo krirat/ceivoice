@@ -21,7 +21,8 @@ export default function AdminTicket() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const [isMergeOpen, setIsMergeOpen] = useState(false);
-  const [mergeTitle, setMergeTitle] = useState("");
+  const [mergeTitle, setMergeTitle] = useState(""); 
+  const [isMerging, setIsMerging] = useState(false);
 
   const [editingTicket, setEditingTicket] = useState(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -29,21 +30,21 @@ export default function AdminTicket() {
   /* =======================
      FETCH TICKETS
   ======================= */
-  useEffect(() => {
-    const fetchTickets = async () => {
-      try {
-        const res = await fetch(`${API_URL}/tickets`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
-          },
-        });
-        const data = await res.json();
-        setTickets(data);
-      } catch (err) {
-        console.error("Fetch tickets error:", err);
-      }
-    };
+  const fetchTickets = async () => {
+    try {
+      const res = await fetch(`${API_URL}/tickets`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+        },
+      });
+      const data = await res.json();
+      setTickets(data);
+    } catch (err) {
+      console.error("Fetch tickets error:", err);
+    }
+  };
 
+  useEffect(() => {
     fetchTickets();
   }, []);
 
@@ -101,27 +102,41 @@ export default function AdminTicket() {
     );
   };
 
-  const handleMerge = () => {
-    const toMerge = tickets.filter((t) => selectedIds.includes(t.id));
-    if (toMerge.length < 2) return;
+  const handleMerge = async () => {
+    if (selectedIds.length < 2) return;
 
-    const newTicket = {
-      id: Date.now(),
-      title: mergeTitle,
-      status: "open",
-      category: toMerge[0].category,
-      assignee: toMerge[0].assignee,
-      due_date: toMerge[0].due_date,
-    };
+    setIsMerging(true);
 
-    setTickets([
-      ...tickets.filter((t) => !selectedIds.includes(t.id)),
-      newTicket,
-    ]);
+    try {
+      const res = await fetch(`${API_URL}/tickets/merge`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+        },
+        body: JSON.stringify({ 
+            ticketIDs: selectedIds,
+            mergeTitle: mergeTitle
+        }),
+      });
 
-    setSelectedIds([]);
-    setMergeTitle("");
-    setIsMergeOpen(false);
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Tickets merged successfully into a Draft Ticket!");
+        setSelectedIds([]);
+        setMergeTitle("");
+        setIsMergeOpen(false);
+        fetchTickets();
+      } else {
+        alert(`Failed to merge tickets: ${data.message}`);
+      }
+    } catch (err) {
+      console.error("Merge tickets error:", err);
+      alert("An error occurred while merging.");
+    } finally {
+      setIsMerging(false);
+    }
   };
 
   /* =======================
@@ -219,7 +234,7 @@ export default function AdminTicket() {
       {/* ===== MERGE MODAL ===== */}
       {isMergeOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl w-[420px]">
+          <div className="bg-white p-6 rounded-xl w-105">
             <h2 className="font-bold text-lg mb-4">Merge Tickets</h2>
 
             <p className="text-sm text-gray-600 mb-3">
@@ -228,7 +243,7 @@ export default function AdminTicket() {
 
             <input
               className="w-full border rounded px-3 py-2 mb-4"
-              placeholder="New ticket title"
+              placeholder="New ticket title (Optional)"
               value={mergeTitle}
               onChange={(e) => setMergeTitle(e.target.value)}
             />
@@ -236,6 +251,7 @@ export default function AdminTicket() {
             <div className="flex justify-end gap-2">
               <button
                 className="px-4 py-2 bg-gray-300 rounded"
+                disabled={isMerging}
                 onClick={() => {
                   setIsMergeOpen(false);
                   setMergeTitle("");
@@ -245,15 +261,11 @@ export default function AdminTicket() {
               </button>
 
               <button
-                disabled={!mergeTitle.trim()}
+                disabled={isMerging}
                 onClick={handleMerge}
-                className={`px-4 py-2 rounded text-white
-                  ${mergeTitle.trim()
-                    ? "bg-blue-600 hover:bg-blue-700"
-                    : "bg-gray-400 cursor-not-allowed"
-                  }`}
+                className={`px-4 py-2 rounded text-white ${isMerging ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"}`}
               >
-                Merge
+                {isMerging ? "Merging..." : "Merge"}
               </button>
             </div>
           </div>
