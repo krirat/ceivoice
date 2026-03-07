@@ -62,7 +62,7 @@ router.put('/:id', verifyToken, async (req, res) => {
 
     try {
         const [oldRows] = await db.promise().query(
-            `SELECT tickets.status, users.email 
+            `SELECT tickets.status, users.email, tickets.group_id 
              FROM tickets 
              JOIN users ON tickets.created_by = users.id
              WHERE tickets.id = ?`,
@@ -74,28 +74,32 @@ router.put('/:id', verifyToken, async (req, res) => {
         }
 
         const oldStatus = oldRows[0].status;
-        const userEmail = oldRows[0].email;
+        let userEmail = oldRows[0].email;
+        const groupId = oldRows[0].group_id;
 
         await db.promise().query(
             'UPDATE tickets SET title=?, summary=?, solution=?, due_date=?, assignee=?, status=?, category=?, last_updated=NOW() WHERE id=?',
             [title, summary, solution, due_date, assignee, status, category, req.params.id]
         );
 
-        if (oldStatus === 0 && status === 1) {
-            await sendEmail(
-                userEmail,
-                "Your Ticket Has Been Published.",
-                `Your ticket #${req.params.id} is now active and being processed.`
-            );
+         //Merged Draft Ticket
+        if (groupId) {
+
+            let emailList = [];
+            const [originalUsers] = await db.promise().query(`
+                SELECT DISTINCT u.email
+                FROM tickets t
+                JOIN users u ON t.created_by = u.id
+                WHERE t.group_id = ? AND t.id != ?
+            `, [groupId, req.params.id]);
+
+            emailList = originalUsers.map(user => user.email);
+            userEmail = emailList;
+
         }
 
-        await db.promise().query(
-            "UPDATE tickets SET title=?, summary=?, solution=?, due_date=?, assignee=?, status=?, last_updated=NOW() WHERE id=?",
-            [title, summary, solution, due_date, assignee, status, req.params.id]
-        );
-
         //notify creator when draft -> active
-        if (oldStatus === 0 && status === 1) {
+        if (oldStatus === 0 && Number(status) === 1) {
             await sendEmail(
                 userEmail,
                 "Your Ticket Has Been Published.",
@@ -139,7 +143,7 @@ router.patch('/:id', verifyToken, async (req, res) => {
     try {
         //get ticket creato remail
         const [rows] = await db.promise().query(
-            `SELECT users.email 
+            `SELECT users.email,tickets.group_id 
              FROM tickets
              JOIN users ON tickets.created_by = users.id
              WHERE tickets.id = ?`,
@@ -149,7 +153,24 @@ router.patch('/:id', verifyToken, async (req, res) => {
         if (rows.length === 0) {
             return res.status(404).send({ message: "Ticket Not Found" });
         }
-        const userEmail = rows[0].email;
+
+        let userEmail = rows[0].email;
+        const groupId = rows[0].group_id;
+
+        if (groupId) {
+
+            let emailList = [];
+            const [originalUsers] = await db.promise().query(`
+                SELECT DISTINCT u.email
+                FROM tickets t
+                JOIN users u ON t.created_by = u.id
+                WHERE t.group_id = ? AND t.id != ?
+            `, [groupId, req.params.id]);
+
+            emailList = originalUsers.map(user => user.email);
+            userEmail = emailList;
+
+        }
 
         await db.promise().query(
             'UPDATE tickets SET status=? where id = ?',
@@ -312,7 +333,7 @@ router.post('/:id/comments', verifyToken, async (req, res) => {
         //notify user on public comment
         if (visibility === "public") {
             const [ticketRows] = await db.promise().query(
-                `SELECT users.email
+                `SELECT users.email, tickets.group_id
                 FROM tickets
                 JOIN users ON tickets.created_by = users.id
                 WHERE tickets.id = ?`,
@@ -320,7 +341,23 @@ router.post('/:id/comments', verifyToken, async (req, res) => {
             );
 
             if (ticketRows.length > 0) {
-                const creatorEmail = ticketRows[0].email;
+                let creatorEmail = ticketRows[0].email;
+                const groupId = ticketRows[0].group_id;
+            
+            if (groupId) {
+
+            let emailList = [];
+            const [originalUsers] = await db.promise().query(`
+                SELECT DISTINCT u.email
+                FROM tickets t
+                JOIN users u ON t.created_by = u.id
+                WHERE t.group_id = ? AND t.id != ?
+            `, [groupId, ticketId]);
+
+            emailList = originalUsers.map(user => user.email);
+            creatorEmail = emailList;
+
+            }
 
                 await sendEmail(
                     creatorEmail,
