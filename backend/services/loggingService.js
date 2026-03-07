@@ -10,7 +10,7 @@ export const TicketEventType = {
 export const getTicketEvents = async (ticketId) => {
     try {
         const query = "SELECT ticket_events.*, users.username FROM ticket_events JOIN users ON ticket_events.changed_by = users.id WHERE ticket_events.ticket_id = ? ORDER BY ticket_events.changed_at DESC";
-        const { rows } = await db.query(query, [ticketId]);
+        const { rows } = await db.promise().query(query, [ticketId]);
         return rows;
     } catch (error) {
         console.error("Error fetching ticket events:", error);
@@ -25,12 +25,20 @@ export const getTicketEvents = async (ticketId) => {
   @param {string} newStatus - The new status of the ticket   
 */
 export const logNewStatusEvent = async (ticketId, userId, newStatus) => {
+    let status_dict = {
+        0 : "Draft",
+        1 : "New",
+        2 : "Assigned",
+        3 : "Solving",
+        4 : "Resolved",
+        5 : "Failed"
+    }
 
-    action = "Changed status to " + newStatus;
+    let action = "Changed status to " + status_dict[newStatus];
 
     try {
         const query = "INSERT INTO ticket_events (ticket_id, changed_by, action, changed_at) VALUES (?, ?, ?, NOW())";
-        await db.query(query, [ticketId, userId, action]);
+        await db.promise().query(query, [ticketId, userId, action]);
     } catch (error) {
         console.error("Error logging ticket event:", error);
     }
@@ -42,12 +50,18 @@ export const logNewStatusEvent = async (ticketId, userId, newStatus) => {
   @param {string} newAssigneeUsername - The username of the new assignee
 */
 export const logReassignedEvent = async (ticketId, userId, newAssigneeUsername) => {
+    try {
+    const [result] =  await db.promise().query('SELECT username FROM users WHERE id = ?', [newAssigneeUsername]);
+    newAssigneeUsername = result[0].username;
+    } catch (error) {
+        console.error("Error Retrieving username:", error);
+    }
 
-    action = "Reassigned to " + newAssigneeUsername;
+    let action = "Reassigned to " + newAssigneeUsername;
 
     try {
         const query = "INSERT INTO ticket_events (ticket_id, changed_by, action, changed_at) VALUES (?, ?, ?, NOW())";
-        await db.query(query, [ticketId, userId, action]);
+        await db.promise().query(query, [ticketId, userId, action]);
     } catch (error) {
         console.error("Error logging ticket event:", error);
     }

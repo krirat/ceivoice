@@ -4,6 +4,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import { success } from 'zod';
 import { sendEmail } from '../services/emailService.js';
+import { logNewStatusEvent } from '../services/loggingService.js';
 
 
 dotenv.config();
@@ -88,6 +89,20 @@ router.put('/:id', verifyToken, async (req, res) => {
             );
         }
 
+        await db.promise().query(
+            "UPDATE tickets SET title=?, summary=?, solution=?, due_date=?, assignee=?, status=?, last_updated=NOW() WHERE id=?",
+            [title, summary, solution, due_date, assignee, status, req.params.id]
+        );
+
+        //notify creator when draft -> active
+        if (oldStatus === 0 && status === 1) {
+            await sendEmail(
+                userEmail,
+                "Your Ticket Has Been Published.",
+                `Your ticket #${req.params.id} is now active and being processed.`
+            );
+        }
+
         //notify assignee
         if (assignee) {
             const [assigneeRows] = await db.promise().query(
@@ -109,7 +124,7 @@ router.put('/:id', verifyToken, async (req, res) => {
                 );
             }
         }
-
+        await logNewStatusEvent(req.params.id, req.user.id, status);
         res.json({ success: true, message: "Ticket updated successfully" });
     } catch (err) {
         console.error(err)
@@ -161,6 +176,7 @@ router.patch('/:id', verifyToken, async (req, res) => {
             ticket_id: req.params.id,
             updated_status: status
         })
+        await logNewStatusEvent(req.params.id, req.user.id, status);
     } catch (err) {
         console.error(err)
         res.status(500).send({ message: 'update failed' })
