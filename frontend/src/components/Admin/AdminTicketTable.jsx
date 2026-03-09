@@ -7,6 +7,7 @@ const statuses = [
   "Assigned",
   "Solving",
   "Resolved",
+  "Failed",
 ];
 
 export default function AdminTicketTable({
