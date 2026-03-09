@@ -59,6 +59,7 @@ function EditTicket({ editingTicket, setEditingTicket, setIsEditOpen, setTickets
           <option value={2}>Assigned</option>
           <option value={3}>Solving</option>
           <option value={4}>Resolved</option>
+          <option value={5}>Failed</option>
         </select>
 
         {/* Category */}
