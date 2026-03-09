@@ -9,11 +9,6 @@ import { FaTrash, FaCheck, FaSignOutAlt, FaPlus, FaClipboardList, FaCoffee, FaCa
 const CEI_LOGO_URL = "https://cei.kmitl.ac.th/wp-content/uploads/2024/09/cropped-ceip-fav-1.png";
 const API_URL = import.meta.env.VITE_API_URL;
 
-const performanceMetrics = [
-    { id: 1, label: 'Tickets', value: 100, color: "bg-yellow-400/70 border-yellow-600" },
-    { id: 2, label: 'Solved', value: 10, color: "bg-green-400/70 border-green-600" },
-    { id: 3, label: 'Failed', value: 5, color: "bg-red-400/70 border-red-600" },
-];
 
 
 function CustomerServiceDashboard() {
@@ -42,23 +37,54 @@ function CustomerServiceDashboard() {
                 console.error("Error fetching ticket data:", error);
             }
         };
-        fetchData();
+    fetchData();
 
-    }, [ticketId]);
+        }, [ticketId]);
 
-    const handleTicketClick = (id) => {
-        setTicketId(id);
-        setModalIsOpen(true);
-    }
+        const handleTicketClick = (id) => {
+            setTicketId(id);
+            setModalIsOpen(true);
+        }
 
-    const filteredTickets = useMemo(() => {
-        return tickets.filter((t) =>
-            [t.title, t.status, t.category, t.assignee, t.due_date]
-                .join(" ")
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase()),
-        );
-    }, [tickets, searchTerm]);
+        const summary = useMemo(() => {
+        const result = {
+            total: tickets.length,
+            open: 0,
+            in_progress: 0,
+            resolved: 0,
+            closed: 0,
+            unassigned: 0,
+            overdue: 0,
+        };
+        
+        tickets.forEach((ticket) => {
+            result[ticket.status] = (result[ticket.status] || 0) + 1;
+            if (!ticket.assignee) {
+            result.unassigned += 1;
+            }
+            if (ticket.due_date && new Date(ticket.due_date) < new Date()) {
+            result.overdue += 1;
+            }
+        });
+        
+        return result;
+        }, [tickets]);
+        
+
+        const filteredTickets = useMemo(() => {
+            return tickets.filter((t) =>
+                [t.title, t.status, t.category, t.assignee, t.due_date]
+                    .join(" ")
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase()),
+            );
+        }, [tickets, searchTerm]);
+
+    const performanceMetrics = [
+    { id: 1, label: 'Tickets', value: summary.total, color: "bg-yellow-400/70 border-yellow-600" },
+    { id: 2, label: 'Solved', value: summary.resolved, color: "bg-green-400/70 border-green-600" },
+    { id: 3, label: 'Failed', value: summary.closed, color: "bg-red-400/70 border-red-600" },
+];
 
     return (
         <>
