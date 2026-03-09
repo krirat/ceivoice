@@ -7,6 +7,20 @@ function CommentSection({ postId }) {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [isInternal, setIsInternal] = useState(false);
+    const [userRole, setUserRole] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+            try {
+                const decodedToken = jwtDecode(token);
+                setUserRole(decodedToken.role);
+            } catch (error) {
+                console.error("Error decoding token:", error);
+            }
+        }
+    }, []);
 
     const fetchComments = async () => {
         fetch(`${API_URL}/tickets/${postId}/comments`, {
@@ -25,9 +39,10 @@ function CommentSection({ postId }) {
     }, [postId]);
 
     const handleAddComment = () => {
-        if (!newComment.trim()) return;
+        if (!newComment.trim() || isSubmitting) return;
+        setIsSubmitting(true);
 
-        const visibilityStatus = isInternal ? 'internal' : 'public';
+        const visibilityStatus = (isInternal && userRole.role !== 0) ? 'internal' : 'public';
 
         fetch(`${API_URL}/tickets/${postId}/comments`, {
             method: 'POST',
@@ -62,6 +77,9 @@ function CommentSection({ postId }) {
             })
             .catch(error => {
                 console.error("Error adding comment:", error);
+            })
+            .finally(() => {
+                setIsSubmitting(false);
             });
     };
 
@@ -82,19 +100,23 @@ function CommentSection({ postId }) {
                     value={newComment}
                     onChange={e => setNewComment(e.target.value)}
                     placeholder="Add a comment"
+                    disabled={isSubmitting}
                 />
                 
-                {/* 4. Add the checkbox UI to toggle the state */}
+                {/* checkbox UI to toggle the state */}
+                {userRole !== 0 && (
                 <label>
                     <input 
                         type="checkbox" 
                         checked={isInternal}
                         onChange={(e) => setIsInternal(e.target.checked)}
+                        disabled={isSubmitting}
                     />
                     Make Internal
                 </label>
+                )}
 
-                <button onClick={handleAddComment}>Submit</button>
+                <button onClick={handleAddComment} disabled={isSubmitting}>{isSubmitting ? 'Submitting...' : 'Submit'}</button>
             </div>
         </div>
     );
