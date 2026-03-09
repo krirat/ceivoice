@@ -107,6 +107,19 @@ router.put('/:id', verifyToken, async (req, res) => {
             );
         }
 
+        if (status == 4 || status == 5) {
+            await sendEmail(
+                userEmail,
+                `Ticket #${req.params.id} Status Updated`,
+                `
+                <h3>Status Updated</h3>
+                <p>Your ticket is now marked as 
+                <strong>${status == 4 ? "Resolved" : "Failed"}</strong>.
+                </p>
+                `
+            );
+        }
+
         //notify assignee
         if (assignee) {
             const [assigneeRows] = await db.promise().query(
@@ -178,14 +191,14 @@ router.patch('/:id', verifyToken, async (req, res) => {
         );
 
         //send amil when resolved or closed
-        if (status == 3 || status == 4) {
+        if (status == 4 || status == 5) {
             await sendEmail(
                 userEmail,
                 `Ticket #${req.params.id} Status Updated`,
                 `
                 <h3>Status Updated</h3>
                 <p>Your ticket is now marked as 
-                <strong>${status == 3 ? "Resolved" : "Closed"}</strong>.
+                <strong>${status == 4 ? "Resolved" : "Failed"}</strong>.
                 </p>
                 `
             );
