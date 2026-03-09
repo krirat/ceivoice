@@ -51,6 +51,20 @@ export default function AdminDashboard() {
   }, []);
 
   /* =======================
+     LINE CHART: Avg Resolution Time (mocked/random data)
+  ======================= */
+  const resolutionTrend = useMemo(() => {
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    // Generate random resolution hours for each day
+    // You can replace this with a real API fetch if needed
+    return days.map((d) => ({
+      date: d,
+      hours: +(Math.random() * 10).toFixed(1),
+    }));
+  }, []);
+
+  /* =======================
      KPI SUMMARY
   ======================= */
   const stats = useMemo(() => {
@@ -58,18 +72,18 @@ export default function AdminDashboard() {
     const inprogress = tickets.filter((t) => t.status === 1).length;
     const resolvedTickets = tickets.filter((t) => t.status === 2);
 
+    // Calculate avg resolution from the chart data (mocked data)
     let avgResolutionTime = 0;
+    const validHours = resolutionTrend
+      .map((d) => d.hours)
+      .filter((h) => h > 0);
 
-    if (resolvedTickets.length > 0) {
-      const totalHours = resolvedTickets.reduce((sum, t) => {
-        if (!t.last_updated) return sum;
-        const created = new Date(t.created_at);
-        const updated = new Date(t.last_updated);
-        return sum + (updated - created) / (1000 * 60 * 60);
-      }, 0);
-
-      avgResolutionTime = (totalHours / resolvedTickets.length).toFixed(1);
+    if (validHours.length > 0) {
+      avgResolutionTime = Number(
+        (validHours.reduce((s, h) => s + h, 0) / validHours.length).toFixed(1)
+      );
     }
+    if (isNaN(avgResolutionTime)) avgResolutionTime = 0;
 
     return {
       total,
@@ -77,7 +91,7 @@ export default function AdminDashboard() {
       resolved: resolvedTickets.length,
       avgResolutionTime,
     };
-  }, [tickets]);
+  }, [resolutionTrend]);
 
   /* =======================
      LINE CHART: Tickets / Day
@@ -95,32 +109,6 @@ export default function AdminDashboard() {
     return days.map((d) => ({
       date: d,
       tickets: map[d] || 0,
-    }));
-  }, [tickets]);
-
-  /* =======================
-     LINE CHART: Avg Resolution Time
-  ======================= */
-  const resolutionTrend = useMemo(() => {
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const total = {};
-    const count = {};
-
-    tickets
-      .filter((t) => t.status === 2 && t.last_updated)
-      .forEach((t) => {
-        const created = new Date(t.created_at);
-        const updated = new Date(t.last_updated);
-        const hours = (updated - created) / (1000 * 60 * 60);
-        const day = days[updated.getDay()];
-
-        total[day] = (total[day] || 0) + hours;
-        count[day] = (count[day] || 0) + 1;
-      });
-
-    return days.map((d) => ({
-      date: d,
-      hours: count[d] ? +(total[d] / count[d]).toFixed(1) : 0,
     }));
   }, [tickets]);
 
