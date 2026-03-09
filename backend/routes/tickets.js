@@ -24,9 +24,7 @@ router.get('/', verifyToken, async (req, res) => {
     }
 
     try {
-        console.log("Executing query with user ID:", req.user.id);
         const [rows] = await db.promise().query(query, [req.user.id]);
-        console.log(rows);
         res.json(rows);
     } catch (err) {
         res.status(500).send({ message: 'Database error' });
