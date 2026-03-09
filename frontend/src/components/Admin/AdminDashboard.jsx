@@ -10,27 +10,16 @@ import {
   PieChart,
   Cell,
   Legend,
+  CartesianGrid,
 } from "recharts";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const STATUS_LABEL = {
-  0: "Draft",
-  1: "New",
-  2: "Assigned",
-  3: "Resolving",
-  4: "Resolved",
-  5: "Failed",
-};
-
 export default function AdminDashboard() {
-  /* =======================
-     STATE
-  ======================= */
   const [tickets, setTickets] = useState([]);
 
   /* =======================
-     FETCH DATA (useEffect เดียว)
+     FETCH DATA
   ======================= */
   useEffect(() => {
     const fetchTickets = async () => {
@@ -40,8 +29,9 @@ export default function AdminDashboard() {
             Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
           },
         });
+
         const data = await res.json();
-        setTickets(data);
+        setTickets(Array.isArray(data) ? data : data.tickets || []);
       } catch (err) {
         console.error("Fetch tickets error:", err);
       }
@@ -51,93 +41,142 @@ export default function AdminDashboard() {
   }, []);
 
   /* =======================
-     LINE CHART: Avg Resolution Time (mocked/random data)
-  ======================= */
-  const resolutionTrend = useMemo(() => {
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-    // Generate random resolution hours for each day
-    // You can replace this with a real API fetch if needed
-    return days.map((d) => ({
-      date: d,
-      hours: +(Math.random() * 10).toFixed(1),
-    }));
-  }, []);
-
-  /* =======================
-     KPI SUMMARY
+     KPI STATS
   ======================= */
   const stats = useMemo(() => {
     const total = tickets.length;
-    const inprogress = tickets.filter((t) => t.status === 1).length;
-    const resolvedTickets = tickets.filter((t) => t.status === 2);
 
-    // Calculate avg resolution from the chart data (mocked data)
-    let avgResolutionTime = 0;
-    const validHours = resolutionTrend
-      .map((d) => d.hours)
-      .filter((h) => h > 0);
+    const inprogress = tickets.filter(
+      (t) => t.status === 1 || t.status === 2 || t.status === 3
+    ).length;
 
-    if (validHours.length > 0) {
-      avgResolutionTime = Number(
-        (validHours.reduce((s, h) => s + h, 0) / validHours.length).toFixed(1)
-      );
+    const resolved = tickets.filter((t) => t.status === 4).length;
+
+    /* ===== FIXED AVG RESOLUTION ===== */
+    const validTickets = tickets.filter((t) => {
+      if (!t.last_updated || !t.due_date) return false;
+
+      const start = new Date(t.last_updated);
+      const end = new Date(t.due_date);
+
+      return end > start;
+    });
+
+    let avgResolution = 0;
+
+    if (validTickets.length > 0) {
+      const totalHours = validTickets.reduce((sum, t) => {
+        const start = new Date(t.last_updated);
+        const end = new Date(t.due_date);
+
+        return sum + (end - start) / (1000 * 60 * 60);
+      }, 0);
+
+      avgResolution = (totalHours / validTickets.length).toFixed(1);
     }
-    if (isNaN(avgResolutionTime)) avgResolutionTime = 0;
 
     return {
       total,
       inprogress,
-      resolved: resolvedTickets.length,
-      avgResolutionTime,
+      resolved,
+      avgResolutionTime: avgResolution,
     };
-  }, [resolutionTrend]);
-
-  /* =======================
-     LINE CHART: Tickets / Day
-  ======================= */
-  const ticketsTrend = useMemo(() => {
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const map = {};
-
-    tickets.forEach((t) => {
-      const d = new Date(t.created_at);
-      const day = days[d.getDay()];
-      map[day] = (map[day] || 0) + 1;
-    });
-
-    return days.map((d) => ({
-      date: d,
-      tickets: map[d] || 0,
-    }));
   }, [tickets]);
 
   /* =======================
-     PIE CHART: Status Distribution
+     TICKETS BY DAY
+  ======================= */
+  const ticketsByDay = useMemo(() => {
+    const map = {};
+
+    tickets.forEach((t) => {
+      if (!t.last_updated) return;
+
+      const date = new Date(t.last_updated).toLocaleDateString();
+
+      map[date] = (map[date] || 0) + 1;
+    });
+
+    return Object.keys(map)
+      .sort((a, b) => new Date(a) - new Date(b))
+      .map((d) => ({
+        date: d,
+        tickets: map[d],
+      }));
+  }, [tickets]);
+
+  /* =======================
+     TICKETS BY HOUR
+  ======================= */
+  const ticketsByHour = useMemo(() => {
+    const map = {};
+
+    tickets.forEach((t) => {
+      if (!t.last_updated) return;
+
+      const hour = new Date(t.last_updated).getHours();
+
+      map[hour] = (map[hour] || 0) + 1;
+    });
+
+    return Object.keys(map)
+      .sort((a, b) => a - b)
+      .map((h) => ({
+        hour: `${h}:00`,
+        tickets: map[h],
+      }));
+  }, [tickets]);
+
+  /* =======================
+     STATUS PIE
   ======================= */
   const statusDistribution = useMemo(() => {
     return [
-      { name: "Open", value: tickets.filter((t) => t.status === 0).length },
+      {
+        name: "Open",
+        value: tickets.filter((t) => t.status === 0 || t.status === 1).length,
+      },
       {
         name: "In Progress",
-        value: tickets.filter((t) => t.status === 1).length,
+        value: tickets.filter((t) => t.status === 2 || t.status === 3).length,
       },
-      { name: "Resolved", value: tickets.filter((t) => t.status === 2).length },
+      {
+        name: "Resolved",
+        value: tickets.filter((t) => t.status === 4).length,
+      },
     ];
   }, [tickets]);
 
   /* =======================
-     RENDER
+     CATEGORY PIE
   ======================= */
+  const categoryDistribution = useMemo(() => {
+    const map = {};
+
+    tickets.forEach((t) => {
+      const cat = t.category || "Other";
+      map[cat] = (map[cat] || 0) + 1;
+    });
+
+    return Object.keys(map).map((k) => ({
+      name: k,
+      value: map[k],
+    }));
+  }, [tickets]);
+
+  const COLORS = ["#6366f1", "#22c55e", "#facc15", "#ef4444", "#06b6d4","#FF7F00"];
+
   return (
     <div style={{ padding: "20px", width: "100%" }}>
-      <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
+      <h1 style={{ fontSize: "26px", fontWeight: "bold", marginBottom: "20px" }}>
+        Admin Dashboard
+      </h1>
 
       {/* KPI */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateColumns: "repeat(4,1fr)",
           gap: "20px",
           marginBottom: "30px",
         }}
@@ -170,26 +209,42 @@ export default function AdminDashboard() {
             gap: "20px",
           }}
         >
+          {/* TICKETS BY DAY */}
           <div style={{ flex: 1 }}>
-            <h2 className="text-lg p-2">Tickets Created This Week</h2>
+            <h2 style={{ padding: "8px" }}>Tickets Created Per Day</h2>
+
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={ticketsTrend}>
+              <LineChart data={ticketsByDay}>
+                <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis />
                 <Tooltip />
-                <Line dataKey="tickets" stroke="#6366f1" />
+                <Line
+                  dataKey="tickets"
+                  stroke="#6366f1"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
+          {/* TICKETS BY HOUR */}
           <div style={{ flex: 1 }}>
-            <h2 className="text-lg p-2">Average Resolution Time (Hours)</h2>
+            <h2 style={{ padding: "8px" }}>Tickets Created Per Hour</h2>
+
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={resolutionTrend}>
-                <XAxis dataKey="date" />
+              <LineChart data={ticketsByHour}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="hour" />
                 <YAxis />
                 <Tooltip />
-                <Line dataKey="hours" stroke="#22c55e" strokeWidth={2} />
+                <Line
+                  dataKey="tickets"
+                  stroke="#22c55e"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -204,8 +259,9 @@ export default function AdminDashboard() {
             gap: "20px",
           }}
         >
-          <div style={{ height: "200px" }}>
-            <h2 className="text-lg">Ticket Status Distribution</h2>
+          {/* STATUS PIE */}
+          <div style={{ flex: 1 }}>
+            <h2>Ticket Status Distribution</h2>
 
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -215,9 +271,8 @@ export default function AdminDashboard() {
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  innerRadius={40}
-                  outerRadius={80}
-                  paddingAngle={3}
+                  innerRadius={50}
+                  outerRadius={90}
                 >
                   <Cell fill="#ef4444" />
                   <Cell fill="#facc15" />
@@ -230,24 +285,24 @@ export default function AdminDashboard() {
             </ResponsiveContainer>
           </div>
 
-          <div style={{ height: "200px" }}>
-            <h2 className="text-lg">Top Category</h2>
+          {/* CATEGORY PIE */}
+          <div style={{ flex: 1 }}>
+            <h2>Top Category</h2>
 
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={statusDistribution}
+                  data={categoryDistribution}
                   dataKey="value"
                   nameKey="name"
                   cx="50%"
                   cy="50%"
                   innerRadius={40}
                   outerRadius={80}
-                  paddingAngle={3}
                 >
-                  <Cell fill="#ef4444" />
-                  <Cell fill="#facc15" />
-                  <Cell fill="#22c55e" />
+                  {categoryDistribution.map((entry, index) => (
+                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                  ))}
                 </Pie>
 
                 <Tooltip />

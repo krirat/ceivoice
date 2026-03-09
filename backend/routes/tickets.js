@@ -493,4 +493,64 @@ router.get('/logs/:id', verifyToken, async (req, res) => {
     }
 });
 
+router.get('/stats/tickets-by-day', verifyToken, async (req, res) => {
+    try {
+        const query = `
+        SELECT 
+            DAYNAME(last_updated) AS day,
+            COUNT(*) AS total
+        FROM tickets
+        WHERE YEARWEEK(last_updated,1) = YEARWEEK(CURDATE(),1)
+        GROUP BY DAYNAME(last_updated)
+        `;
+
+        const [rows] = await db.promise().query(query);
+
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: "Database error" });
+    }
+});
+
+router.get('/stats/tickets-by-hour', verifyToken, async (req, res) => {
+    try {
+        const query = `
+        SELECT 
+            HOUR(last_updated) AS hour,
+            COUNT(*) AS total
+        FROM tickets
+        GROUP BY HOUR(last_updated)
+        ORDER BY hour
+        `;
+
+        const [rows] = await db.promise().query(query);
+
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: "Database error" });
+    }
+});
+
+router.get('/stats/top-category', verifyToken, async (req, res) => {
+    try {
+        const query = `
+        SELECT 
+            category,
+            COUNT(*) AS total
+        FROM tickets
+        GROUP BY category
+        ORDER BY total DESC
+        `;
+
+        const [rows] = await db.promise().query(query);
+
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: "Database error" });
+    }
+});
+
 export default router;
