@@ -6,7 +6,7 @@ import EventLogSection from "./eventLogSection";
 const API_URL = import.meta.env.VITE_API_URL;
 
 
-const statuses = ["Draft", "Open", "In Progress", "Resolved", "Closed"];
+const statuses = ["Draft", "New", "Assigned", "Solving", "Resolved", "Failed"];
 
 function TicketInfo({ closeTicket, ticketId }) {
     const [loading, setLoading] = useState(true);
