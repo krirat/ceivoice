@@ -98,7 +98,7 @@ router.put('/:id', verifyToken, async (req, res) => {
 
         //notify creator when draft -> active
         if (oldStatus === 0 && Number(status) === 1) {
-            await sendEmail(
+            sendEmail(
                 userEmail,
                 "Your Ticket Has Been Published.",
                 `Your ticket #${req.params.id} is now active and being processed.`
@@ -106,7 +106,7 @@ router.put('/:id', verifyToken, async (req, res) => {
         }
 
         if (status == 4 || status == 5) {
-            await sendEmail(
+            sendEmail(
                 userEmail,
                 `Ticket #${req.params.id} Status Updated`,
                 `
@@ -128,7 +128,7 @@ router.put('/:id', verifyToken, async (req, res) => {
             if (assigneeRows.length > 0) {
                 const assigneeEmail = assigneeRows[0].email;
 
-                await sendEmail(
+                sendEmail(
                     assigneeEmail,
                     `You have been assigned Ticket #${req.params.id}`,
                     `
@@ -190,7 +190,7 @@ router.patch('/:id', verifyToken, async (req, res) => {
 
         //send amil when resolved or closed
         if (status == 4 || status == 5) {
-            await sendEmail(
+            sendEmail(
                 userEmail,
                 `Ticket #${req.params.id} Status Updated`,
                 `
@@ -387,7 +387,7 @@ router.post('/:id/comments', verifyToken, async (req, res) => {
 
                 }
 
-                await sendEmail(
+                sendEmail(
                     creatorEmail,
                     `New Comment on Ticket #${ticketId}`,
                     `
