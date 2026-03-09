@@ -82,7 +82,7 @@ router.put('/:id', verifyToken, async (req, res) => {
             [title, summary, solution, due_date, assignee, status, category, req.params.id]
         );
 
-         //Merged Draft Ticket
+        //Merged Draft Ticket
         if (groupId) {
 
             let emailList = [];
@@ -220,10 +220,10 @@ router.post('/merge', verifyToken, async (req, res) => {
         await db.promise().beginTransaction();
 
         const [sourceTickets] = await db.promise().query(
-            'SELECT title, category, solution, assignee, summary FROM tickets WHERE id IN (?) LIMIT 1', 
+            'SELECT title, category, solution, assignee, summary FROM tickets WHERE id IN (?) LIMIT 1',
             [ticketIDs]
         );
-        
+
         const baseTitle = sourceTickets.length > 0 ? sourceTickets[0].title : 'Merged Requests';
         const baseCategory = sourceTickets.length > 0 ? sourceTickets[0].category : 'General';
         const baseSolution = sourceTickets.length > 0 ? sourceTickets[0].solution : 'Merged Solutions';
@@ -242,7 +242,7 @@ router.post('/merge', verifyToken, async (req, res) => {
             [draftTitle, draftSummary, baseCategory, adminId, baseSolution, baseAssignee, groupId]
         );
         const masterTicketId = draftTicketResult.insertId;
-        
+
         const [updateResults] = await db.promise().query(
             'UPDATE tickets SET group_id = ? WHERE id IN (?)',
             [groupId, ticketIDs]
@@ -285,6 +285,23 @@ router.get('/groups/:groupid', verifyToken, async (req, res) => {
         res.status(500).send({ message: 'Database error' });
     }
 })
+
+router.get('/groups/:groupid/members', verifyToken, async (req, res) => {
+    const sql = `SELECT DISTINCT u.email
+    FROM tickets t
+    JOIN users u ON t.created_by = u.id
+    WHERE t.group_id = ?`
+    try {
+        const [results] = await db.promise().query(sql, [req.params.groupid]);
+
+        if (results.length === 0) return res.status(404).send({ message: 'Group not found' });
+        res.json(results);
+    } catch (err) {
+        console.log(err)
+        res.status(500).send({ message: 'Database error' });
+    }
+});
+
 
 // COMMENTS METHODS
 // ADD COMMENT
@@ -343,21 +360,21 @@ router.post('/:id/comments', verifyToken, async (req, res) => {
             if (ticketRows.length > 0) {
                 let creatorEmail = ticketRows[0].email;
                 const groupId = ticketRows[0].group_id;
-            
-            if (groupId) {
 
-            let emailList = [];
-            const [originalUsers] = await db.promise().query(`
+                if (groupId) {
+
+                    let emailList = [];
+                    const [originalUsers] = await db.promise().query(`
                 SELECT DISTINCT u.email
                 FROM tickets t
                 JOIN users u ON t.created_by = u.id
                 WHERE t.group_id = ? AND t.id != ?
             `, [groupId, ticketId]);
 
-            emailList = originalUsers.map(user => user.email);
-            creatorEmail = emailList;
+                    emailList = originalUsers.map(user => user.email);
+                    creatorEmail = emailList;
 
-            }
+                }
 
                 await sendEmail(
                     creatorEmail,

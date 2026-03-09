@@ -10,7 +10,7 @@ export default function Navbar({ title = "Customer Service" }) {
     }
 
     return (
-        <nav className="bg-gray-800 text-white px-6 py-4 shadow-md">
+        <nav className="bg-gray-800 text-white px-6 py-4 shadow-md fixed top-0 left-0 right-0">
             <div className="flex justify-between items-center">
 
                 {/* Logo / Title */}

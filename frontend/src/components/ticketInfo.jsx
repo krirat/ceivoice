@@ -11,6 +11,7 @@ const statuses = ["Draft", "New", "Assigned", "Solving", "Resolved", "Failed"];
 function TicketInfo({ closeTicket, ticketId }) {
     const [loading, setLoading] = useState(true);
     const [ticketData, setTicketData] = useState(null);
+    const [groupMembers, setGroupMembers] = useState(null)
     useEffect(() => {
         console.log("Fetching ticket data...");
         const fetchData = async () => {
@@ -23,6 +24,17 @@ function TicketInfo({ closeTicket, ticketId }) {
                 });
                 const data = await response.json();
                 setTicketData(data);
+                console.log(data)
+                if (data.group_id) {
+                    const res = await fetch(`${API_URL}/tickets/groups/${data.group_id}/members`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+                        },
+                    });
+                    const members = await res.json();
+                    setGroupMembers(members);
+                }
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching ticket data:", error);
@@ -44,7 +56,9 @@ function TicketInfo({ closeTicket, ticketId }) {
                         <p><span className="font-semibold">Assigned to:</span> {ticketData?.assignee_username || "Unassigned"}</p>
                     </div>
                     <p><span className="font-semibold">Category:</span> {ticketData?.category || "No Category"}</p>
-                    <p><span className="font-semibold">Created by: </span>{ticketData?.creator_username || "Unknown User"}</p>
+                    <p><span className="font-semibold">Created by: </span>{ticketData?.creator_username || "Unknown User"} {groupMembers && groupMembers.map((member, index) => (
+                        <span key={index}>{index == 0 ? "(" : ""}{member.email}{index < groupMembers.length - 1 ? ", " : ")"}</span>
+                    ))}</p>
                     <p className="mt-4 font-semibold">Summary: </p>
                     <p className="m-2">{ticketData?.summary || "No Summary"}</p>
                     <p className="font-semibold">Suggested Solution:</p>

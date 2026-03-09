@@ -21,7 +21,7 @@ export default function AdminTicket() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const [isMergeOpen, setIsMergeOpen] = useState(false);
-  const [mergeTitle, setMergeTitle] = useState(""); 
+  const [mergeTitle, setMergeTitle] = useState("");
   const [isMerging, setIsMerging] = useState(false);
 
   const [editingTicket, setEditingTicket] = useState(null);
@@ -114,9 +114,9 @@ export default function AdminTicket() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
         },
-        body: JSON.stringify({ 
-            ticketIDs: selectedIds,
-            mergeTitle: mergeTitle
+        body: JSON.stringify({
+          ticketIDs: selectedIds,
+          mergeTitle: mergeTitle
         }),
       });
 
@@ -138,7 +138,18 @@ export default function AdminTicket() {
       setIsMerging(false);
     }
   };
+  const getDuplicates = (arr) => {
+    //Iterate through array and return an array of duplicate titles with their counts
+    const counts = {};
+    arr.forEach((t) => {
+      counts[t.title] = (counts[t.title] || 0) + 1;
+    });
+    return Object.fromEntries(
+      Object.entries(counts).filter(([_, count]) => count > 1),
+    );
 
+
+  }
   /* =======================
      RENDER
   ======================= */
@@ -196,6 +207,17 @@ export default function AdminTicket() {
         />
       </div>
 
+      {/* Show duplicate titles */}
+      {Object.entries(getDuplicates(tickets)).length > 0 && (
+        <div className="mb-4 p-3 bg-yellow-100 border-l-4 border-yellow-400 flex">
+          <p className="font-semibold text-yellow-700">Similar Tickets Detected - Recommend Merging:</p>
+
+          {Object.keys(getDuplicates(tickets)).map((title) => (
+            <p className="ml-3" key={title}>{title}</p>
+          ))}
+        </div>
+      )}
+
       {/* ===== TABLE ===== */}
       <AdminTicketTable
         tickets={filteredTickets}
@@ -223,7 +245,7 @@ export default function AdminTicket() {
         isOpen={isDetailOpen}
         onRequestClose={() => setIsDetailOpen(false)}
         className="bg-white rounded-xl p-4 w-1/2 mx-auto mt-20 border"
-        overlayClassName="fixed inset-0 bg-black/30"
+        overlayClassName="pb-8 fixed inset-0 bg-black/30 overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
       >
         <TicketInfo
           ticketId={ticketId}
