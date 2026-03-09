@@ -18,7 +18,7 @@ export default function Navbar({ title = "Customer Service" }) {
 
                 {/* Menu Links */}
                 <div className="flex space-x-6">
-                    <button className="hover:text-gray-300 transition" onClick={() => navigate("/submit-ticket")}>
+                    <button className="hover:text-gray-300 transition" onClick={() => navigate("/ticket-submit")}>
                         Submit New Ticket
                     </button>
                     <LogOut size={20} className="cursor-pointer hover:text-gray-300 transition" onClick={handleLogout} />
