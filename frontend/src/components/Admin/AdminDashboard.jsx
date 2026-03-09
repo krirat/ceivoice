@@ -52,21 +52,34 @@ export default function AdminDashboard() {
 
     const resolved = tickets.filter((t) => t.status === 4).length;
 
-    const avgResolution =
-      tickets.reduce((sum, t) => {
-        if (!t.last_updated || !t.due_date) return sum;
+    /* ===== FIXED AVG RESOLUTION ===== */
+    const validTickets = tickets.filter((t) => {
+      if (!t.last_updated || !t.due_date) return false;
 
-        const created = new Date(t.last_updated);
-        const resolved = new Date(t.due_date);
+      const start = new Date(t.last_updated);
+      const end = new Date(t.due_date);
 
-        return sum + (resolved - created) / (1000 * 60 * 60);
-      }, 0) / (tickets.length || 1);
+      return end > start;
+    });
+
+    let avgResolution = 0;
+
+    if (validTickets.length > 0) {
+      const totalHours = validTickets.reduce((sum, t) => {
+        const start = new Date(t.last_updated);
+        const end = new Date(t.due_date);
+
+        return sum + (end - start) / (1000 * 60 * 60);
+      }, 0);
+
+      avgResolution = (totalHours / validTickets.length).toFixed(1);
+    }
 
     return {
       total,
       inprogress,
       resolved,
-      avgResolutionTime: avgResolution.toFixed(1),
+      avgResolutionTime: avgResolution,
     };
   }, [tickets]);
 
@@ -135,7 +148,7 @@ export default function AdminDashboard() {
   }, [tickets]);
 
   /* =======================
-     TOP CATEGORY
+     CATEGORY PIE
   ======================= */
   const categoryDistribution = useMemo(() => {
     const map = {};
@@ -151,7 +164,7 @@ export default function AdminDashboard() {
     }));
   }, [tickets]);
 
-  const COLORS = ["#6366f1", "#22c55e", "#facc15", "#ef4444", "#06b6d4"];
+  const COLORS = ["#6366f1", "#22c55e", "#facc15", "#ef4444", "#06b6d4","#FF7F00"];
 
   return (
     <div style={{ padding: "20px", width: "100%" }}>
@@ -288,10 +301,7 @@ export default function AdminDashboard() {
                   outerRadius={80}
                 >
                   {categoryDistribution.map((entry, index) => (
-                    <Cell
-                      key={index}
-                      fill={COLORS[index % COLORS.length]}
-                    />
+                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
 
