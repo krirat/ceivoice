@@ -105,7 +105,7 @@ function EditTicket({ editingTicket, setEditingTicket, setIsEditOpen, setTickets
         <input
           type="date"
           className="w-full border rounded px-3 py-2 mb-4"
-          value={editingTicket.due_date}
+          value={editingTicket.due_date ? new Date(editingTicket.due_date).toLocaleDateString('en-CA') : ""}
           disabled={isSaving}
           onChange={(e) =>
             setEditingTicket({ ...editingTicket, due_date: e.target.value })
