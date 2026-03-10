@@ -13,6 +13,14 @@ on fetching other routes --> retrieve 'token' from local storage and attach head
 
 click login button --> Backend -(redirect)-> Google -(redirect)-> Backend --> creates a cookie named auth_token with the JWT inside. --> backend -(redirect)-> /auth/success --> authSuccess.jsx logic (similar to normal login but with cookie) --> page go to /dashboard (or whatever set)
 
-# OLLAMA USAGE
+## OLLAMA USAGE
+
 1. ollama pull <model_name>
 2. in routes/ai.js, change ollama.chat() `model : '<model_name>'`
+
+## CERTS FOR HTTPS
+
+../certs
+KEY: localhost.key
+CERT: localhost.crt
+use openSSL for generation of root key and local key then add to trusted key bank of OS.

@@ -13,8 +13,6 @@ import aiRoutes from './routes/ai.js';
 import ticketRoutes from './routes/tickets.js';
 import dashboardRoutes from './routes/dashboard.js';
 
-import {sendEmail} from "./services/emailService.js";
-
 dotenv.config();
 const app = express();
 
