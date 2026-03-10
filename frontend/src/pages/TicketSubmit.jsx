@@ -9,11 +9,19 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
 
 export default function TicketSubmit() {
   const [problem, setProblem] = useState("");
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false); 
+
+  useEffect(() => {
+    const decodedToken = jwtDecode(localStorage.getItem('auth_token'));
+    const userEmail = decodedToken.email;
+    setEmail(userEmail);
+  },[])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,6 +45,7 @@ export default function TicketSubmit() {
       if (res.ok) {
         alert("Draft ticket created!");
         setProblem("");
+        setEmail("");
       } else {
         alert("Failed to create ticket");
       }
@@ -67,6 +76,8 @@ export default function TicketSubmit() {
                     id="email"
                     type="email"
                     placeholder="m@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="text-left"
                     required
                     disabled={isLoading}
