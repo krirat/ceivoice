@@ -71,7 +71,11 @@ export default function AdminTicketTable({
 
                 <td className="p-2">{item.category}</td>
                 <td className="p-2">{item.assignee_username || "-"}</td>
-                <td className="p-2">{new Date(item.due_date).toLocaleString("en-GB") || "-"}</td>
+                <td className="p-2">
+                  {item.due_date 
+                    ? new Date(item.due_date).toLocaleDateString("en-GB") 
+                    : <span className="text-gray-400 italic">set due date</span>}
+                </td>
 
                 {/* Action Buttons */}
                 {showEdit || showSubmit ? (
