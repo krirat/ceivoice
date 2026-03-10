@@ -107,7 +107,7 @@ router.post('/login', (req, res) => {
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:5001/api/auth/google/callback"
+    callbackURL: "https://localhost:5001/api/auth/google/callback"
 },
 function(accessToken, refreshToken, profile, done) {
     const email = profile.emails[0].value;
@@ -138,7 +138,7 @@ router.get('/google',
 );
 
 router.get('/google/callback', 
-  passport.authenticate('google', { failureRedirect: 'http://localhost:5173', session:   false }),
+  passport.authenticate('google', { failureRedirect: 'https://localhost:5173', session:   false }),
   function(req, res) {
     const token = generateAccessToken(req.user);
     res.cookie('auth_token', token, { 
@@ -146,7 +146,7 @@ router.get('/google/callback',
         secure: true, // true for HTTPS
         maxAge: 60000 
     });
-    res.redirect('http://localhost:5173/auth/success');
+    res.redirect('https://localhost:5173/auth/success');
   }
 );
 
