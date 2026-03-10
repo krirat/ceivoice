@@ -15,7 +15,7 @@ const AppRouter = () => {
     return (
         <Routes>
             {/* normal page */}
-            <Route path="/" element={<Navigate to="/admin" />} />
+            <Route path="/" element={<Navigate to="/login" />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/auth/success" element={<AuthSuccess />} />
