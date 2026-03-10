@@ -4,7 +4,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import { success } from 'zod';
 import { sendEmail } from '../services/emailService.js';
-import { logNewStatusEvent } from '../services/loggingService.js';
+import { logNewStatusEvent, logReassignedEvent } from '../services/loggingService.js';
 
 
 dotenv.config();
@@ -15,8 +15,22 @@ const router = express.Router();
 router.get('/', verifyToken, async (req, res) => {
     const userRole = req.user.role;
     let query = '';
+    let queryParams = [];
+
     if (userRole === 0) {
-        query = 'SELECT tickets.*, users.username AS assignee_username FROM tickets LEFT JOIN users ON tickets.assignee = users.id WHERE created_by = ?';
+        query = `
+            SELECT tickets.*, users.username AS assignee_username 
+            FROM tickets 
+            LEFT JOIN users ON tickets.assignee = users.id 
+            WHERE tickets.created_by = ? 
+            OR (
+                tickets.group_id IN (
+                    SELECT group_id FROM tickets WHERE created_by = ? AND group_id IS NOT NULL
+                )
+                AND tickets.title LIKE '[Merged]%'
+            )
+        `;
+        queryParams = [req.user.id, req.user.id];
     } else if (userRole === 1) {
         query = 'SELECT tickets.*, users.username AS assignee_username FROM tickets LEFT JOIN users ON tickets.assignee = users.id WHERE status != 0';
     } else if (userRole === 2) {
@@ -24,7 +38,7 @@ router.get('/', verifyToken, async (req, res) => {
     }
 
     try {
-        const [rows] = await db.promise().query(query, [req.user.id]);
+        const [rows] = await db.promise().query(query, queryParams);
         res.json(rows);
     } catch (err) {
         res.status(500).send({ message: 'Database error' });
@@ -42,7 +56,7 @@ SELECT
 FROM
     tickets
 JOIN users AS users_1 ON tickets.created_by = users_1.id
-JOIN users AS users_2 ON tickets.assignee = users_2.id
+LEFT JOIN users AS users_2 ON tickets.assignee = users_2.id
 WHERE tickets.id = ?;`;
 
     try {
@@ -140,6 +154,7 @@ router.put('/:id', verifyToken, async (req, res) => {
             }
         }
         await logNewStatusEvent(req.params.id, req.user.id, status);
+        await logReassignedEvent(req.params.id, req.user.id, assignee );
         res.json({ success: true, message: "Ticket updated successfully" });
     } catch (err) {
         console.error(err)
