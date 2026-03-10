@@ -14,9 +14,12 @@ import {
 } from "recharts";
 
 const API_URL = import.meta.env.VITE_API_URL;
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+const DASHBOARD_LOAD_TIME = Date.now();
 
 export default function AdminDashboard() {
   const [tickets, setTickets] = useState([]);
+  const [timeFilter, setTimeFilter] = useState("all");
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window === "undefined") return false;
     return window.innerWidth < 768;
@@ -28,6 +31,22 @@ export default function AdminDashboard() {
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
+
+  const filteredTickets = useMemo(() => {
+    if (timeFilter === "all") return tickets;
+
+    const thirtyDaysAgo = DASHBOARD_LOAD_TIME - THIRTY_DAYS_MS;
+
+    return tickets.filter((t) => {
+      const sourceDate = t.last_updated || t.created_at || t.createdAt;
+      if (!sourceDate) return false;
+
+      const ts = new Date(sourceDate).getTime();
+      if (Number.isNaN(ts)) return false;
+
+      return ts >= thirtyDaysAgo;
+    });
+  }, [tickets, timeFilter]);
 
   /* =======================
      FETCH DATA
@@ -55,16 +74,16 @@ export default function AdminDashboard() {
      KPI STATS
   ======================= */
   const stats = useMemo(() => {
-    const total = tickets.length;
+    const total = filteredTickets.length;
 
-    const inprogress = tickets.filter(
+    const inprogress = filteredTickets.filter(
       (t) => t.status === 1 || t.status === 2 || t.status === 3
     ).length;
 
-    const resolved = tickets.filter((t) => t.status === 4).length;
+    const resolved = filteredTickets.filter((t) => t.status === 4).length;
 
     /* ===== FIXED AVG RESOLUTION ===== */
-    const validTickets = tickets.filter((t) => {
+    const validTickets = filteredTickets.filter((t) => {
       if (!t.last_updated || !t.due_date) return false;
 
       const start = new Date(t.last_updated);
@@ -92,7 +111,7 @@ export default function AdminDashboard() {
       resolved,
       avgResolutionTime: avgResolution,
     };
-  }, [tickets]);
+  }, [filteredTickets]);
 
   /* =======================
      TICKETS BY DAY
@@ -100,7 +119,7 @@ export default function AdminDashboard() {
   const ticketsByDay = useMemo(() => {
     const map = {};
 
-    tickets.forEach((t) => {
+    filteredTickets.forEach((t) => {
       if (!t.last_updated) return;
 
       const date = new Date(t.last_updated).toLocaleDateString();
@@ -114,7 +133,7 @@ export default function AdminDashboard() {
         date: d,
         tickets: map[d],
       }));
-  }, [tickets]);
+  }, [filteredTickets]);
 
   /* =======================
      TICKETS BY HOUR
@@ -122,7 +141,7 @@ export default function AdminDashboard() {
   const ticketsByHour = useMemo(() => {
     const map = {};
 
-    tickets.forEach((t) => {
+    filteredTickets.forEach((t) => {
       if (!t.last_updated) return;
 
       const hour = new Date(t.last_updated).getHours();
@@ -136,7 +155,7 @@ export default function AdminDashboard() {
         hour: `${h}:00`,
         tickets: map[h],
       }));
-  }, [tickets]);
+  }, [filteredTickets]);
 
   /* =======================
      STATUS PIE
@@ -145,18 +164,18 @@ export default function AdminDashboard() {
     return [
       {
         name: "Open",
-        value: tickets.filter((t) => t.status === 0 || t.status === 1).length,
+        value: filteredTickets.filter((t) => t.status === 0 || t.status === 1).length,
       },
       {
         name: "In Progress",
-        value: tickets.filter((t) => t.status === 2 || t.status === 3).length,
+        value: filteredTickets.filter((t) => t.status === 2 || t.status === 3).length,
       },
       {
         name: "Resolved",
-        value: tickets.filter((t) => t.status === 4).length,
+        value: filteredTickets.filter((t) => t.status === 4).length,
       },
     ];
-  }, [tickets]);
+  }, [filteredTickets]);
 
   /* =======================
      CATEGORY PIE
@@ -164,7 +183,7 @@ export default function AdminDashboard() {
   const categoryDistribution = useMemo(() => {
     const map = {};
 
-    tickets.forEach((t) => {
+    filteredTickets.forEach((t) => {
       const cat = t.category || "Other";
       map[cat] = (map[cat] || 0) + 1;
     });
@@ -173,7 +192,7 @@ export default function AdminDashboard() {
       name: k,
       value: map[k],
     }));
-  }, [tickets]);
+  }, [filteredTickets]);
 
   const COLORS = ["#6366f1", "#22c55e", "#facc15", "#ef4444", "#06b6d4", "#FF7F00"];
 
@@ -182,6 +201,48 @@ export default function AdminDashboard() {
       <h1 style={{ fontSize: "26px", fontWeight: "bold", marginBottom: "20px" }}>
         Admin Dashboard
       </h1>
+
+      <div
+        style={{
+          display: "inline-flex",
+          background: "#f1f5f9",
+          borderRadius: "999px",
+          padding: "4px",
+          gap: "4px",
+          marginBottom: "20px",
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => setTimeFilter("all")}
+          style={{
+            border: "none",
+            borderRadius: "999px",
+            padding: "8px 14px",
+            cursor: "pointer",
+            fontWeight: 600,
+            background: timeFilter === "all" ? "#1e293b" : "transparent",
+            color: timeFilter === "all" ? "#fff" : "#334155",
+          }}
+        >
+          All Tickets
+        </button>
+        <button
+          type="button"
+          onClick={() => setTimeFilter("30d")}
+          style={{
+            border: "none",
+            borderRadius: "999px",
+            padding: "8px 14px",
+            cursor: "pointer",
+            fontWeight: 600,
+            background: timeFilter === "30d" ? "#1e293b" : "transparent",
+            color: timeFilter === "30d" ? "#fff" : "#334155",
+          }}
+        >
+          Past 30 Days
+        </button>
+      </div>
 
       {/* KPI */}
       <div
