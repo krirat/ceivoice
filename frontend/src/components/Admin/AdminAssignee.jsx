@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
 
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Adminassignee() {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-useEffect(() => {
+  useEffect(() => {
     const fetchusers = async () => {
       try {
         const res = await fetch(`${API_URL}/dashboard/admin/assignees`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
           },
         });
         const data = await res.json();
@@ -29,49 +29,61 @@ useEffect(() => {
     try {
       const res = await fetch(`${API_URL}/dashboard/admin/users/${id}/role`, {
         method: "PATCH",
-        headers : {
-          'Authorization' : `Bearer ${localStorage.getItem('auth_token')}`,
-          'Content-Type': 'application/json'
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ role : newRole })
-      })
-      const data = res.json()
+        body: JSON.stringify({ role: newRole }), 
+      });
+      
+      const data = await res.json();
+      
+      const updatedUsers = users.map((user) =>
+        user.id === id ? { ...user, role: newRole } : user
+      );
+      setUsers(updatedUsers);
     } catch (err) {
-      console.log(err);
+      console.log("Error updating role:", err);
     }
-    const updatedTickets = users.map((user) =>
-      user.id === id ? { ...user, role: newRole } : user,
-    );
-    setUsers(updatedTickets);
   };
 
   const handleChangeDepartment = async (id, newDepartment) => {
     try {
       const res = await fetch(`${API_URL}/dashboard/admin/users/${id}/department`, {
         method: "PATCH",
-        headers : {
-          'Authorization' : `Bearer ${localStorage.getItem('auth_token')}`,
-          'Content-Type': 'application/json'
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ department : newDepartment })
-      })
-      const data = res.json()
-    } catch (err) {
-      console.log(err);
-    }
+        body: JSON.stringify({ department: newDepartment }),
+      });
+      
+      const data = await res.json();
 
-    const updatedTickets = users.map((user) =>
-      user.id === id ? { ...user, department: newDepartment } : user,
-    );
-    setUsers(updatedTickets);
+      const updatedUsers = users.map((user) =>
+        user.id === id ? { ...user, department: newDepartment } : user
+      );
+      setUsers(updatedUsers);
+    } catch (err) {
+      console.log("Error updating department:", err);
+    }
   };
 
-  const filteredTickets = users.filter((user) =>
-    user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.department.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredTickets = users.filter((user) => {
+    const search = searchTerm.toLowerCase();
+    const username = (user.username || "").toLowerCase();
+    const email = (user.email || "").toLowerCase();
+    const department = (user.department || "").toLowerCase();
+
+    const roleText = user.role?.toString() === "1" ? "assignee" : "user";
+
+    return (
+      username.includes(search) ||
+      email.includes(search) ||
+      roleText.includes(search) ||
+      department.includes(search)
+    );
+  });
 
   return (
     <div className="p-6">
@@ -103,22 +115,23 @@ useEffect(() => {
                 <td className="p-2">{user.email}</td>
                 <td className="p-2">
                   <select
-                    value={user.role}
+                    value={user.role?.toString() || "0"} 
                     onChange={(e) => handleRoleChange(user.id, e.target.value)}
                     className="border rounded p-1"
                   >
-                    <option value='0'>user</option>
+                    <option value="0">user</option>
                     <option value="1">assignee</option>
                   </select>
                 </td>
                 <td className="p-2">
                   <select
-                    value={user.department}
+                    value={user.department || ""} 
                     onChange={(e) =>
                       handleChangeDepartment(user.id, e.target.value)
                     }
                     className="border rounded p-1"
                   >
+                    <option value=""></option>
                     <option value="Technical Support">Technical Support</option>
                     <option value="Billing">Billing</option>
                     <option value="HR">HR</option>
