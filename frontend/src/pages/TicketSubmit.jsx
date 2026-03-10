@@ -12,6 +12,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function TicketSubmit() {
   const [problem, setProblem] = useState("");
   const [email, setEmail] = useState("");
@@ -30,7 +32,7 @@ export default function TicketSubmit() {
     try {
       const token = localStorage.getItem("auth_token");
 
-      const res = await fetch("http://localhost:5001/api/ollama", {
+      const res = await fetch(`${API_URL}/ollama`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
