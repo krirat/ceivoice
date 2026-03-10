@@ -17,6 +17,17 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export default function AdminDashboard() {
   const [tickets, setTickets] = useState([]);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth < 768;
+  });
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   /* =======================
      FETCH DATA
@@ -164,7 +175,7 @@ export default function AdminDashboard() {
     }));
   }, [tickets]);
 
-  const COLORS = ["#6366f1", "#22c55e", "#facc15", "#ef4444", "#06b6d4","#FF7F00"];
+  const COLORS = ["#6366f1", "#22c55e", "#facc15", "#ef4444", "#06b6d4", "#FF7F00"];
 
   return (
     <div style={{ padding: "20px", width: "100%" }}>
@@ -176,7 +187,7 @@ export default function AdminDashboard() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4,1fr)",
+          gridTemplateColumns: isMobile ? "1fr" : "repeat(4,1fr)",
           gap: "20px",
           marginBottom: "30px",
         }}
@@ -195,9 +206,10 @@ export default function AdminDashboard() {
       <div
         style={{
           display: "flex",
+          flexDirection: isMobile ? "column" : "row",
           gap: "30px",
           width: "100%",
-          height: "450px",
+          height: isMobile ? "auto" : "450px",
         }}
       >
         {/* LEFT */}
@@ -210,7 +222,7 @@ export default function AdminDashboard() {
           }}
         >
           {/* TICKETS BY DAY */}
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, minHeight: isMobile ? "240px" : 0 }}>
             <h2 style={{ padding: "8px" }}>Tickets Created Per Day</h2>
 
             <ResponsiveContainer width="100%" height="100%">
@@ -230,7 +242,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* TICKETS BY HOUR */}
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, minHeight: isMobile ? "240px" : 0 }}>
             <h2 style={{ padding: "8px" }}>Tickets Created Per Hour</h2>
 
             <ResponsiveContainer width="100%" height="100%">
@@ -260,19 +272,19 @@ export default function AdminDashboard() {
           }}
         >
           {/* STATUS PIE */}
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, minHeight: isMobile ? "300px" : 0 }}>
             <h2>Ticket Status Distribution</h2>
 
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
+              <PieChart margin={{ top: 8, right: 8, left: 8, bottom: 36 }}>
                 <Pie
                   data={statusDistribution}
                   dataKey="value"
                   nameKey="name"
                   cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={90}
+                  cy={isMobile ? "42%" : "50%"}
+                  innerRadius={isMobile ? 36 : 50}
+                  outerRadius={isMobile ? 62 : 90}
                 >
                   <Cell fill="#ef4444" />
                   <Cell fill="#facc15" />
@@ -280,25 +292,25 @@ export default function AdminDashboard() {
                 </Pie>
 
                 <Tooltip />
-                <Legend verticalAlign="bottom" />
+                <Legend verticalAlign="bottom" wrapperStyle={{ fontSize: isMobile ? 12 : 14 }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
 
           {/* CATEGORY PIE */}
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, minHeight: isMobile ? "320px" : 0 }}>
             <h2>Top Category</h2>
 
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
+              <PieChart margin={{ top: 8, right: 8, left: 8, bottom: 36 }}>
                 <Pie
                   data={categoryDistribution}
                   dataKey="value"
                   nameKey="name"
                   cx="50%"
-                  cy="50%"
-                  innerRadius={40}
-                  outerRadius={80}
+                  cy={isMobile ? "42%" : "50%"}
+                  innerRadius={isMobile ? 28 : 40}
+                  outerRadius={isMobile ? 58 : 80}
                 >
                   {categoryDistribution.map((entry, index) => (
                     <Cell key={index} fill={COLORS[index % COLORS.length]} />
@@ -306,7 +318,7 @@ export default function AdminDashboard() {
                 </Pie>
 
                 <Tooltip />
-                <Legend verticalAlign="bottom" />
+                <Legend verticalAlign="bottom" wrapperStyle={{ fontSize: isMobile ? 12 : 14 }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
