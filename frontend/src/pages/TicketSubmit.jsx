@@ -1,13 +1,8 @@
-
-
 import Navbar from "@/components/navbar.jsx";
 import { Button } from "@/components/ui/button"
 import {
   Card,
-  CardAction,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -17,77 +12,93 @@ import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react";
 
 export default function TicketSubmit() {
-
   const [problem, setProblem] = useState("");
+  const [isLoading, setIsLoading] = useState(false); 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true); 
 
-    const token = localStorage.getItem("auth_token");
+    try {
+      const token = localStorage.getItem("auth_token");
 
-    const res = await fetch("http://localhost:5001/api/ollama", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
-      body: JSON.stringify({ problem }),
-    });
+      const res = await fetch("http://localhost:5001/api/ollama", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ problem }),
+      });
 
-    const data = await res.json();
-    console.log(data);
+      const data = await res.json();
+      console.log(data);
 
-    if (res.ok) {
-      alert("Draft ticket created!");
-    } else {
-      alert("Failed to create ticket");
+      if (res.ok) {
+        alert("Draft ticket created!");
+        setProblem("");
+      } else {
+        alert("Failed to create ticket");
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+      alert("An error occurred while submitting the ticket.");
+    } finally {
+      setIsLoading(false); 
     }
   };
 
   return (
     <>
-    <Navbar title="Ticket Submit" />
-    <div className="flex h-screen bg-black/20 items-center justify-center">
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle>Submit request</CardTitle>
-      </CardHeader>
+      <Navbar title="Ticket Submit" />
+      <div className="flex h-screen bg-black/20 items-center justify-center">
+        <Card className="w-full max-w-sm">
+          <CardHeader>
+            <CardTitle>Submit request</CardTitle>
+          </CardHeader>
 
-      <CardContent>
-        <form onSubmit={handleSubmit}>
-          <div className="flex flex-col gap-6">
+          <CardContent>
+            <form onSubmit={handleSubmit}>
+              <div className="flex flex-col gap-6">
 
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                className="text-left"
-                required
-              />
-            </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="m@example.com"
+                    className="text-left"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                placeholder="Enter description"
-                className="min-h-[120px] text-left"
-                required
-                value={problem}
-                onChange={(e) => setProblem(e.target.value)}
-              />
-            </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    placeholder="Enter description"
+                    className="min-h-30 text-left"
+                    required
+                    value={problem}
+                    onChange={(e) => setProblem(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
 
-          </div>
+              </div>
 
-          <Button type="submit" className="w-full mt-4">
-            Submit
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
-    </div>
+              <Button 
+                type="submit" 
+                className="w-full mt-4" 
+                disabled={isLoading}
+              >
+                {isLoading ? "Submitting..." : "Submit"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </>
   )
 }

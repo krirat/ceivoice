@@ -24,9 +24,7 @@ router.get('/', verifyToken, async (req, res) => {
     }
 
     try {
-        console.log("Executing query with user ID:", req.user.id);
         const [rows] = await db.promise().query(query, [req.user.id]);
-        console.log(rows);
         res.json(rows);
     } catch (err) {
         res.status(500).send({ message: 'Database error' });
@@ -100,10 +98,23 @@ router.put('/:id', verifyToken, async (req, res) => {
 
         //notify creator when draft -> active
         if (oldStatus === 0 && Number(status) === 1) {
-            await sendEmail(
+            sendEmail(
                 userEmail,
                 "Your Ticket Has Been Published.",
                 `Your ticket #${req.params.id} is now active and being processed.`
+            );
+        }
+
+        if (status == 4 || status == 5) {
+            sendEmail(
+                userEmail,
+                `Ticket #${req.params.id} Status Updated`,
+                `
+                <h3>Status Updated</h3>
+                <p>Your ticket is now marked as 
+                <strong>${status == 4 ? "Resolved" : "Failed"}</strong>.
+                </p>
+                `
             );
         }
 
@@ -117,7 +128,7 @@ router.put('/:id', verifyToken, async (req, res) => {
             if (assigneeRows.length > 0) {
                 const assigneeEmail = assigneeRows[0].email;
 
-                await sendEmail(
+                sendEmail(
                     assigneeEmail,
                     `You have been assigned Ticket #${req.params.id}`,
                     `
@@ -178,14 +189,14 @@ router.patch('/:id', verifyToken, async (req, res) => {
         );
 
         //send amil when resolved or closed
-        if (status == 3 || status == 4) {
-            await sendEmail(
+        if (status == 4 || status == 5) {
+            sendEmail(
                 userEmail,
                 `Ticket #${req.params.id} Status Updated`,
                 `
                 <h3>Status Updated</h3>
                 <p>Your ticket is now marked as 
-                <strong>${status == 3 ? "Resolved" : "Closed"}</strong>.
+                <strong>${status == 4 ? "Resolved" : "Failed"}</strong>.
                 </p>
                 `
             );
@@ -376,7 +387,7 @@ router.post('/:id/comments', verifyToken, async (req, res) => {
 
                 }
 
-                await sendEmail(
+                sendEmail(
                     creatorEmail,
                     `New Comment on Ticket #${ticketId}`,
                     `

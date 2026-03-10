@@ -244,7 +244,7 @@ export default function AdminTicket() {
       <Modal
         isOpen={isDetailOpen}
         onRequestClose={() => setIsDetailOpen(false)}
-        className="bg-white rounded-xl p-4 w-1/2 mx-auto mt-20 border"
+        className="bg-white rounded-xl p-4 w-1/2 min-w-[400px] mx-auto mt-20 border"
         overlayClassName="pb-8 fixed inset-0 bg-black/30 overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
       >
         <TicketInfo

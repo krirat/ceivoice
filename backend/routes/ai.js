@@ -53,7 +53,7 @@ router.post('/ollama', verifyToken, async (req, res) => {
                     email: person.email
                 };  // ID for database query
 
-                return `- ${person.username}: ${person.department}`; // string for AI prompt
+                return `- ${person.username} : ${person.department}`; // string for AI prompt
             })
             .join('\n');
 
@@ -117,6 +117,7 @@ router.post('/ollama', verifyToken, async (req, res) => {
             assignedId,
             user_id
         ]);
+        console.log(`user email: ${email}`)
  
         /*send mail to user*/
         await sendEmail(

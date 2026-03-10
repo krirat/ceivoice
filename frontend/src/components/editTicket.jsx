@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 function EditTicket({ editingTicket, setEditingTicket, setIsEditOpen, setTickets }) {
     const API_URL = import.meta.env.VITE_API_URL;
     const [assignees, setAssignees] = useState([]);
+    const [isSaving, setIsSaving] = useState(false);
 
 
         useEffect(() => {
@@ -40,6 +41,7 @@ function EditTicket({ editingTicket, setEditingTicket, setIsEditOpen, setTickets
         <input
           className="w-full border rounded px-3 py-2 mb-3"
           value={editingTicket.title}
+          disabled={isSaving}
           onChange={(e) =>
             setEditingTicket({ ...editingTicket, title: e.target.value })
           }
@@ -50,6 +52,7 @@ function EditTicket({ editingTicket, setEditingTicket, setIsEditOpen, setTickets
         <select
           className="w-full border rounded px-3 py-2 mb-3"
           value={editingTicket.status}
+          disabled={isSaving}
           onChange={(e) =>
             setEditingTicket({ ...editingTicket, status: e.target.value })
           }
@@ -59,6 +62,7 @@ function EditTicket({ editingTicket, setEditingTicket, setIsEditOpen, setTickets
           <option value={2}>Assigned</option>
           <option value={3}>Solving</option>
           <option value={4}>Resolved</option>
+          <option value={5}>Failed</option>
         </select>
 
         {/* Category */}
@@ -66,6 +70,7 @@ function EditTicket({ editingTicket, setEditingTicket, setIsEditOpen, setTickets
         <input
           className="w-full border rounded px-3 py-2 mb-3"
           value={editingTicket.category}
+          disabled={isSaving}
           onChange={(e) =>
             setEditingTicket({ ...editingTicket, category: e.target.value })
           }
@@ -76,6 +81,7 @@ function EditTicket({ editingTicket, setEditingTicket, setIsEditOpen, setTickets
                 <select
                     className="w-full border rounded px-3 py-2 mb-3"
                     value={editingTicket.assignee}
+                    disabled={isSaving}
                     onChange={(e) =>
                         setEditingTicket({ ...editingTicket, assignee: e.target.value })
                     }
@@ -100,6 +106,7 @@ function EditTicket({ editingTicket, setEditingTicket, setIsEditOpen, setTickets
           type="date"
           className="w-full border rounded px-3 py-2 mb-4"
           value={editingTicket.due_date}
+          disabled={isSaving}
           onChange={(e) =>
             setEditingTicket({ ...editingTicket, due_date: e.target.value })
           }
@@ -109,6 +116,7 @@ function EditTicket({ editingTicket, setEditingTicket, setIsEditOpen, setTickets
         <div className="flex justify-end gap-2">
           <button
             className="px-4 py-2 bg-gray-300 rounded"
+            disabled={isSaving}
             onClick={() => {
               setIsEditOpen(false);
               setEditingTicket(null);
@@ -120,6 +128,9 @@ function EditTicket({ editingTicket, setEditingTicket, setIsEditOpen, setTickets
           <button
             className="px-4 py-2 bg-green-600 text-white rounded"
             onClick={async () => {
+              if (isSaving) return;
+              setIsSaving(true);
+
                 try {
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/tickets/${editingTicket.id}`,
@@ -149,10 +160,12 @@ function EditTicket({ editingTicket, setEditingTicket, setIsEditOpen, setTickets
               
             } catch (err) {
                 console.error("Update error:", err);
+            } finally {
+              setIsSaving(false);
             }
         }}
           >
-            Save
+           {isSaving ? 'Saving...' : 'Save'}
           </button>
         </div>
       </div>

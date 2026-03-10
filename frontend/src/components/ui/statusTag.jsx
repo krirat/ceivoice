@@ -5,7 +5,7 @@ function StatusTag({ status }) {
         "Assigned": "bg-blue-300 text-blue-800",
         "In Progress": "bg-yellow-300 text-yellow-800",
         "Resolved": "bg-blue-300 text-blue-800",
-        "Closed": "bg-red-300 text-red-800"
+        "Failed": "bg-red-300 text-red-800"
     };
 
     return (
