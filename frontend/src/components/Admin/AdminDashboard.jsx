@@ -195,6 +195,10 @@ export default function AdminDashboard() {
   }, [filteredTickets]);
 
   const COLORS = ["#6366f1", "#22c55e", "#facc15", "#ef4444", "#06b6d4", "#FF7F00"];
+  const dayChartHeight = isMobile ? 260 : undefined;
+  const hourChartHeight = isMobile ? 260 : undefined;
+  const statusPieHeight = isMobile ? 320 : undefined;
+  const categoryPieHeight = isMobile ? 340 : undefined;
 
   return (
     <div style={{ padding: "20px", width: "100%" }}>
@@ -283,7 +287,7 @@ export default function AdminDashboard() {
           }}
         >
           {/* TICKETS BY DAY */}
-          <div style={{ flex: 1, minHeight: isMobile ? "240px" : 0 }}>
+          <div style={{ flex: isMobile ? "0 0 auto" : 1, height: dayChartHeight, minHeight: 240 }}>
             <h2 style={{ padding: "8px" }}>Tickets Created Per Day</h2>
 
             <ResponsiveContainer width="100%" height="100%">
@@ -303,7 +307,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* TICKETS BY HOUR */}
-          <div style={{ flex: 1, minHeight: isMobile ? "240px" : 0 }}>
+          <div style={{ flex: isMobile ? "0 0 auto" : 1, height: hourChartHeight, minHeight: 240 }}>
             <h2 style={{ padding: "8px" }}>Tickets Created Per Hour</h2>
 
             <ResponsiveContainer width="100%" height="100%">
@@ -333,7 +337,7 @@ export default function AdminDashboard() {
           }}
         >
           {/* STATUS PIE */}
-          <div style={{ flex: 1, minHeight: isMobile ? "300px" : 0 }}>
+          <div style={{ flex: isMobile ? "0 0 auto" : 1, height: statusPieHeight, minHeight: 300 }}>
             <h2>Ticket Status Distribution</h2>
 
             <ResponsiveContainer width="100%" height="100%">
@@ -359,7 +363,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* CATEGORY PIE */}
-          <div style={{ flex: 1, minHeight: isMobile ? "320px" : 0 }}>
+          <div style={{ flex: isMobile ? "0 0 auto" : 1, height: categoryPieHeight, minHeight: 320 }}>
             <h2>Top Category</h2>
 
             <ResponsiveContainer width="100%" height="100%">
