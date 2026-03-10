@@ -4,6 +4,9 @@ import cors from 'cors';
 import passport from 'passport';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
 
 import authRoutes from './routes/auth.js';
 import aiRoutes from './routes/ai.js';
@@ -40,12 +43,15 @@ app.get('/api/health', (req, res) => {
     return res.status(200).send({message : 'API OK'})
 });
 
-app.listen(process.env.SERVER_PORT, () => {
-    console.log(`Server listening at http://localhost:${process.env.SERVER_PORT}`);
-});
+const sslOptions = {
+    key: fs.readFileSync(path.join(process.cwd(), '../certs/localhost.key')),
+    cert: fs.readFileSync(path.join(process.cwd(), '../certs/localhost.crt'))
+}
 
-// sendEmail(
-//     "soponwit2549@gmail.com",
-//     "Test Email jaaa",
-//     "ไออ้วนนนนนนนนนน"
-// );
+/*app.listen(process.env.SERVER_PORT, () => {
+    console.log(`Server listening at http://localhost:${process.env.SERVER_PORT}`);
+}); */
+
+https.createServer(sslOptions, app).listen(process.env.SERVER_PORT, () => {
+    console.log(`HTTPS Server is listening at https://localhost:${process.env.SERVER_PORT}`)
+})

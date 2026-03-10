@@ -24,6 +24,7 @@ dist-ssr
 *.sw?
 
 uploads/
+certs/
 
 node_modules/
 backend/node_modules/

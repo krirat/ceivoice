@@ -143,7 +143,7 @@ router.get('/google/callback',
     const token = generateAccessToken(req.user);
     res.cookie('auth_token', token, { 
         httpOnly: false, 
-        secure: false, // true for HTTPS
+        secure: true, // true for HTTPS
         maxAge: 60000 
     });
     res.redirect('http://localhost:5173/auth/success');
