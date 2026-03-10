@@ -63,7 +63,7 @@ function TicketInfo({ closeTicket, ticketId }) {
                     <p className="m-2">{ticketData?.summary || "No Summary"}</p>
                     <p className="font-semibold">Suggested Solution:</p>
                     <p className="m-2 mb-4">{ticketData?.solution || "No Suggested Solution"}</p>
-                    <p><span className="font-semibold">Due Date:</span> {ticketData?.due_date ? new Date(ticketData.due_date).toLocaleString() : "No Due Date"}</p>
+                    <p><span className="font-semibold">Due Date:</span> {ticketData?.due_date ? new Date(ticketData.due_date).toLocaleDateString() : "No Due Date"}</p>
 
 
                     <div className="my-5 bg-white dark:bg-gray-700">
