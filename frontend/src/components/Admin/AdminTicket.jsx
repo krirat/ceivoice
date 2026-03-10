@@ -142,7 +142,9 @@ export default function AdminTicket() {
     //Iterate through array and return an array of duplicate titles with their counts
     const counts = {};
     arr.forEach((t) => {
+      if (!t.group_id) {
       counts[t.title] = (counts[t.title] || 0) + 1;
+      }
     });
     return Object.fromEntries(
       Object.entries(counts).filter(([_, count]) => count > 1),
